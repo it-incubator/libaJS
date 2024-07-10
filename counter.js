@@ -9,6 +9,7 @@ export function Counter() {
 
     const interval = setInterval(() => {
         localState.counter++;
+        console.log('Counter Tick')
         render(element, localState)
     }, 1000)
 

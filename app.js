@@ -5,7 +5,8 @@ export function App() {
     const element = document.createElement("div")
 
     const localState = {
-        menuItemId: 'counter', // 'todos'
+        menuItemId: 'counter', // 'todos',
+        childComponents: []
     }
 
     render(element, localState)
@@ -16,6 +17,8 @@ export function App() {
 }
 
 function render(element, localState) {
+    localState.childComponents.forEach(cc => cc.cleanup())
+    localState.childComponents = [];
     element.innerHTML = '';
 
     const menuSelector = document.createElement('select')
@@ -34,9 +37,9 @@ function render(element, localState) {
         localState.menuItemId = menuSelector.value
         render(element, localState)
     })
-
     if (localState.menuItemId === 'counter') {
         const counterComponent = Counter()
+        localState.childComponents.push(counterComponent)
         element.append(counterComponent.element)
     }
     if (localState.menuItemId === 'todos') {
