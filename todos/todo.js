@@ -4,7 +4,6 @@ export function Todo(props) {
     return {
         element,
         cleanup: () => {},
-        type: Todo,
         props
     }
 }

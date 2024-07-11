@@ -5,11 +5,8 @@ export function App(_, liba) {
     const element = document.createElement("div")
 
     const localState = {
-        menuItemId: 'todos', // 'counter',
-        childComponents: []
+        menuItemId: 'todos', // 'counter'
     }
-
-    //App.render(element, localState)
 
     return {
         element,
@@ -36,7 +33,6 @@ App.render = ({element, localState, liba}) => {
     })
     if (localState.menuItemId === 'counter') {
         const counterComponent = liba.create(Counter)
-        localState.childComponents.push(counterComponent)
         element.append(counterComponent.element)
     }
     if (localState.menuItemId === 'todos') {
