@@ -1,7 +1,7 @@
 import {Counter} from "./counter.js";
 import {Todos} from "./todos/todos.js";
 
-export function App() {
+export function App(_, liba) {
     const element = document.createElement("div")
 
     const localState = {
@@ -9,14 +9,15 @@ export function App() {
         childComponents: []
     }
 
-    render(element, localState)
+    //App.render(element, localState)
 
     return {
-        element
+        element,
+        localState
     }
 }
 
-function render(element, localState) {
+App.render = ({element, localState, liba}) => {
     localState.childComponents.forEach(cc => cc.cleanup())
     localState.childComponents = [];
     element.innerHTML = '';
@@ -35,15 +36,15 @@ function render(element, localState) {
 
     menuSelector.addEventListener('change', () => {
         localState.menuItemId = menuSelector.value
-        render(element, localState)
+        liba.refresh()
     })
     if (localState.menuItemId === 'counter') {
-        const counterComponent = Counter()
+        const counterComponent = liba.create(Counter)
         localState.childComponents.push(counterComponent)
         element.append(counterComponent.element)
     }
     if (localState.menuItemId === 'todos') {
-        const todosComponent = Todos()
+        const todosComponent = liba.create(Todos)
         element.append(todosComponent.element)
     }
 }

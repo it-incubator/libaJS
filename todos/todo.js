@@ -1,8 +1,6 @@
 export function Todo(props) {
     const element = document.createElement("li")
 
-    render(element, props)
-
     return {
         element,
         cleanup: () => {},
@@ -11,7 +9,7 @@ export function Todo(props) {
     }
 }
 
-function render(element, props) {
+Todo.render = ({element, props}) => {
     console.log('TODO RENDERED', props)
     element.innerHTML = '';
 

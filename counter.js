@@ -1,16 +1,14 @@
-export function Counter() {
+export function Counter(_, {liba}) {
     const element = document.createElement("div")
 
     const localState = {
         counter: 1
     }
 
-    render(element, localState)
-
     const interval = setInterval(() => {
         localState.counter++;
         console.log('Counter Tick')
-        render(element, localState)
+        liba.refresh()
     }, 1000)
 
 
@@ -18,11 +16,12 @@ export function Counter() {
         element,
         cleanup: () => {
             clearInterval(interval)
-        }
+        },
+        localState
     }
 }
 
-function render(element, localState) {
+Counter.render = ({element, localState}) => {
     element.innerHTML = '';
     element.append(localState.counter)
 }
