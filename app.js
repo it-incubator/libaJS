@@ -5,7 +5,7 @@ export function App(_, liba) {
     const element = document.createElement("div")
 
     const localState = {
-        menuItemId: 'counter', // 'todos',
+        menuItemId: 'todos', // 'counter',
         childComponents: []
     }
 
@@ -18,9 +18,6 @@ export function App(_, liba) {
 }
 
 App.render = ({element, localState, liba}) => {
-    localState.childComponents.forEach(cc => cc.cleanup())
-    localState.childComponents = [];
-
     const menuSelector = document.createElement('select')
 
     const menuItem1 = document.createElement('option')

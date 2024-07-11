@@ -1,5 +1,4 @@
 import {Todo} from "./todo.js";
-import {Liba} from "../liba/Liba.js";
 
 export function Todos(_, {liba}) {
     const element = document.createElement("ul")
@@ -9,7 +8,6 @@ export function Todos(_, {liba}) {
         setIsDone: (todoId, isDone) => {
             localState.prevState = localState.todos
             localState.todos = localState.todos.map(td => td.id === todoId ? {...td, isDone} : td)
-            //Todos.render({element, localState, component})
             liba.refresh();
         },
         childComponents: []
@@ -18,7 +16,6 @@ export function Todos(_, {liba}) {
     const component = {
         element,
         cleanup: () => {},
-        type: Todos,
         localState
     }
 
@@ -27,18 +24,8 @@ export function Todos(_, {liba}) {
 
 Todos.render = ({element, localState, props, liba}) => {
     for (let i = 0; i < localState.todos.length; i++){
-        const todo = localState.todos[i];
-
-        if (localState.childComponents[i]) {
-            if (localState.childComponents[i].props.todo === todo) {
-                element.append(localState.childComponents[i].element);
-                continue;
-            }
-        }
-        const todoComponent = liba.create(Todo, {todo, setIsDone: localState.setIsDone, meta: {key: todo.id}})
-        localState.childComponents[i]?.cleanup()
-
-        localState.childComponents[i] = todoComponent;
-        element.append(todoComponent.element)
+      const todo = localState.todos[i]
+      const todoComponent = liba.create(Todo, {todo, setIsDone: localState.setIsDone})
+      element.append(todoComponent.element)
     }
 }

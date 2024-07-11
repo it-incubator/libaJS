@@ -1,16 +1,32 @@
-class Tree {
-    constructor() {
-        this.root = null
-    }
-    addNode(parentNode, component) {
-        if (!parentNode && !this.root) {
-            this.root = { component, children: []  }
-            return;
-        }
-        parentNode.children.push({ component, children: []  })
-    }
+function ensureStateAndChild(component) {
+    if (!component.localState) component.localState = {};
+    if (!component.localState.childComponents) component.localState.childComponents = [];
 
 }
+
+function propsTheSame(prevProps, newProps) {
+    if (prevProps === newProps) return true;
+
+    if ((prevProps == null && newProps != null) || (prevProps != null && newProps == null)) {
+        return false;
+    }
+
+    const prevKeys = Object.keys(prevProps || {});
+    const newKeys = Object.keys(newProps || {});
+
+    if (prevKeys.length !== newKeys.length) {
+        return false;
+    }
+
+    for (let key of prevKeys) {
+        if (prevProps[key] !== newProps[key]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 export const Liba = {
     create(componentFunction, props = {}, inner = {parent: null}) {
@@ -22,7 +38,23 @@ export const Liba = {
 
         const libaForRender = {
             create: (childComponentFunction, props = {}) => {
-                return Liba.create(childComponentFunction, props, {parent: componentFunction})
+
+                component.childIndex++
+
+
+                const existedChildComponent = component.localState.childComponents[component.childIndex]
+                if (existedChildComponent
+                    && propsTheSame(existedChildComponent.props, props)
+                ){
+                     return existedChildComponent;
+                }
+
+                const childComponent = Liba.create(childComponentFunction, props, {parent: component})
+
+                ensureStateAndChild(component)
+                component.localState.childComponents[component.childIndex] = childComponent;
+
+                return childComponent
             },
             refresh() {
                 render();
@@ -36,6 +68,12 @@ export const Liba = {
         function render() {
             component.element.innerHTML = ''
 
+            ensureStateAndChild(component)
+
+            component.localState.childComponents.forEach(cc => cc.cleanup())
+
+            component.childIndex = -1
+
             componentFunction.render({
                 element: component.element,
                 localState: component.localState,
@@ -47,11 +85,5 @@ export const Liba = {
         render()
 
         return component
-    },
-    tree: new Tree()
+    }
 }
-
-const fiber = {
-
-}
-
