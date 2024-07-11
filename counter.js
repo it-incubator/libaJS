@@ -22,6 +22,5 @@ export function Counter(_, {liba}) {
 }
 
 Counter.render = ({element, localState}) => {
-    element.innerHTML = '';
     element.append(localState.counter)
 }

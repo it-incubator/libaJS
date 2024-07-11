@@ -26,8 +26,6 @@ export function Todos(_, {liba}) {
 }
 
 Todos.render = ({element, localState, props, liba}) => {
-    element.innerHTML = '';
-
     for (let i = 0; i < localState.todos.length; i++){
         const todo = localState.todos[i];
 

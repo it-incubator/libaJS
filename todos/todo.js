@@ -11,7 +11,6 @@ export function Todo(props) {
 
 Todo.render = ({element, props}) => {
     console.log('TODO RENDERED', props)
-    element.innerHTML = '';
 
     const isDoneCheckbox = document.createElement("input")
     isDoneCheckbox.type = 'checkbox'

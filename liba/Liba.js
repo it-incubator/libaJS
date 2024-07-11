@@ -34,6 +34,8 @@ export const Liba = {
         parent.children?.push(component);
 
         function render() {
+            component.element.innerHTML = ''
+
             componentFunction.render({
                 element: component.element,
                 localState: component.localState,

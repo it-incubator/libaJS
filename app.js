@@ -20,7 +20,6 @@ export function App(_, liba) {
 App.render = ({element, localState, liba}) => {
     localState.childComponents.forEach(cc => cc.cleanup())
     localState.childComponents = [];
-    element.innerHTML = '';
 
     const menuSelector = document.createElement('select')
 
