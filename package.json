@@ -1,0 +1,28 @@
+{
+  "name": "@it-incubator/libajs",
+  "version": "0.0.1",
+  "description": "The best UI framework (faster and smaller then React, Vue or Angular)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/it-incubator/libaJS.git"
+  },
+  "keywords": [
+    "react",
+    "vue",
+    "angular",
+    "ui",
+    "framework",
+    "library",
+    "front-end"
+  ],
+  "author": "dmitry kuzyuberdin and SamuraiDevClub members",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/it-incubator/libaJS/issues"
+  },
+  "homepage": "https://github.com/it-incubator/libaJS#readme"
+}
