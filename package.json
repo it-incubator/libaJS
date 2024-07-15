@@ -1,6 +1,6 @@
 {
   "name": "@it-incubator/libajs",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "The best UI framework (faster and smaller then React, Vue or Angular)",
   "main": "index.js",
   "scripts": {

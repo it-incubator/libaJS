@@ -27,9 +27,35 @@ function propsTheSame(prevProps, newProps) {
     return true;
 }
 
+class LibaError extends Error {
+    constructor(message) {
+        super(message)
+    }
+}
+
+function validateComponentFunction(componentFunction) {
+    if (typeof componentFunction.render !== 'function') {
+        throw new LibaError(`You must declare render method for your function component "${componentFunction.name}"
+
+Example: App.render = ({element, localState, props, liba}) => {}`)
+    }
+}
+
+function validateComponentInstance(component) {
+    if (!(component.element instanceof Node)) {
+        throw new LibaError(`Error in ${component.type.name} Each component function should return instance with element that is valid Node instance for example that created by document.createElement
+        {
+           ...
+           element: document.createElement('div')
+        }`)
+    }
+}
+
 
 export const Liba = {
     create(componentFunction, props = {}, inner = {parent: null}) {
+        validateComponentFunction(componentFunction);
+
         const libaForComponent = {
             refresh() {
                 render();
@@ -62,6 +88,9 @@ export const Liba = {
         }
 
         const component = componentFunction(props, {liba: libaForComponent})
+        component.type = componentFunction
+
+        validateComponentInstance(component)
 
         parent.children?.push(component);
 
