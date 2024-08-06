@@ -1,20 +1,20 @@
 import {Counter} from "./counter.js";
 import {Todos} from "./todos/todos.js";
 
-export function App(_, liba) {
+export function App(_, {liba}) {
     const element = document.createElement("div")
 
-    const localState = {
+    liba.useState({
         menuItemId: 'todos', // 'counter'
-    }
+    })
 
     return {
-        element,
-        localState
+        element
     }
 }
 
-App.render = ({element, localState, liba}) => {
+App.render = ({element, statesWithSetters, liba}) => {
+    const [state, setMenuItemId] = statesWithSetters[0]
     const menuSelector = document.createElement('select')
 
     const menuItem1 = document.createElement('option')
@@ -24,18 +24,17 @@ App.render = ({element, localState, liba}) => {
     menuItem2.value = 'todos'
     menuItem2.append('Todolist')
     menuSelector.append(menuItem1,menuItem2);
-    menuSelector.value = localState.menuItemId
+    menuSelector.value = state.menuItemId
     element.append(menuSelector)
 
     menuSelector.addEventListener('change', () => {
-        localState.menuItemId = menuSelector.value
-        liba.refresh()
+        setMenuItemId({menuItemId: menuSelector.value})
     })
-    if (localState.menuItemId === 'counter') {
+    if (state.menuItemId === 'counter') {
         const counterComponent = liba.create(Counter)
         element.append(counterComponent.element)
     }
-    if (localState.menuItemId === 'todos') {
+    if (state.menuItemId === 'todos') {
         const todosComponent = liba.create(Todos)
         element.append(todosComponent.element)
     }

@@ -64,8 +64,27 @@ export const Liba = {
                 renderComponent();
             }
         }
+
+        let stateWrappers = []
+        let stateWrappersWithSetters = [] //[[]];
+
         const componentLiba = {
-            refresh: renderLiba.refresh
+            refresh: renderLiba.refresh,
+            useState: (initialState) => {
+                const stateWrapper = { value: initialState}
+                stateWrappers.push(stateWrapper)
+                const setter = (newValueOrReducer) => {
+                    if (typeof newValueOrReducer === 'function') {
+                        stateWrapper.value = newValueOrReducer(stateWrapper.value)
+                    } else {
+                        stateWrapper.value = newValueOrReducer
+                    }
+                    renderLiba.refresh()
+                };
+
+                stateWrappersWithSetters.push([stateWrapper, setter])
+                return [stateWrappers.value, setter]
+            }
         }
 
         const componentInstance = ComponentFunction(props, {liba: componentLiba})
@@ -87,6 +106,7 @@ export const Liba = {
             ComponentFunction.render({
                 element: componentInstance.element,
                 localState: componentInstance.localState,
+                statesWithSetters: stateWrappersWithSetters.map(swws => [swws[0].value, swws[1]]),
                 props: componentInstance.props,
                 liba: renderLiba
             })
