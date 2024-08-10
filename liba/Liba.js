@@ -27,63 +27,16 @@ function propsTheSame(prevProps, newProps) {
     return true;
 }
 
-
 export const Liba = {
     create(ComponentFunction, props = {}, {parent} = {parent: null}) {
-        const renderLiba = {
-            create: (ChildrenComponentFunction, props = {}) => {
-                componentInstance.childrenIndex++
-
-                const alreadyExistedComponentInstance = componentInstance.childrenComponents?.[componentInstance.childrenIndex]
-
-                if (alreadyExistedComponentInstance) {
-                    if (alreadyExistedComponentInstance.type === ChildrenComponentFunction) {
-                        if (propsTheSame(props, alreadyExistedComponentInstance.props)) {
-                            return alreadyExistedComponentInstance
-                        } else {
-                            alreadyExistedComponentInstance.props = props
-                            alreadyExistedComponentInstance.refresh()
-                            return alreadyExistedComponentInstance
-                        }
-                    } else {
-                        delete componentInstance.childrenComponents[componentInstance.childrenIndex]
-                    }
-                }
-
-                const childInstance =  Liba.create(ChildrenComponentFunction, props, {parent: componentInstance})
-
-                return childInstance;
-            },
-            refresh() {
-                // todo: if element doesn't hav innerHTML??
-                componentInstance.element.innerHTML = ''
-
-                componentInstance.childrenComponents?.forEach(cc => cc.cleanup?.())
-                //componentInstance.childrenComponents = []
-
-                renderComponent();
-            }
-        }
 
         let stateWrappers = []
         let stateWrappersWithSetters = [] //[[]];
 
         const componentLiba = {
-            refresh: renderLiba.refresh,
             useState: (initialState) => {
-                const stateWrapper = { value: initialState}
-                stateWrappers.push(stateWrapper)
-                const setter = (newValueOrReducer) => {
-                    if (typeof newValueOrReducer === 'function') {
-                        stateWrapper.value = newValueOrReducer(stateWrapper.value)
-                    } else {
-                        stateWrapper.value = newValueOrReducer
-                    }
-                    renderLiba.refresh()
-                };
-
-                stateWrappersWithSetters.push([stateWrapper, setter])
-                return [stateWrappers.value, setter]
+                const refreshComponent = () => componentInstance.renderLiba.refresh()
+                return useState(initialState, stateWrappers, stateWrappersWithSetters, refreshComponent)
             }
         }
 
@@ -91,32 +44,83 @@ export const Liba = {
 
         componentInstance.type = ComponentFunction
 
-        componentInstance.refresh = renderLiba.refresh
-
+        componentInstance.renderLiba = {
+            create: (
+                ChildrenComponentFunction, props = {}
+            ) => createChildren(componentInstance, ChildrenComponentFunction, props),
+            refresh: () => refresh(componentInstance, stateWrappersWithSetters)
+        }
 
         if (parent) {
             ensureChildren(parent)
             parent.childrenComponents[parent.childrenIndex] = componentInstance
         }
 
-        function renderComponent() {
-
-            componentInstance.childrenIndex = -1;
-
-            ComponentFunction.render({
-                element: componentInstance.element,
-                localState: componentInstance.localState,
-                statesWithSetters: stateWrappersWithSetters.map(swws => [swws[0].value, swws[1]]),
-                props: componentInstance.props,
-                liba: renderLiba
-            })
-        }
-
-        renderComponent()
+        renderComponent(componentInstance, stateWrappersWithSetters)
 
         return componentInstance
     },
     refresh() {
 
     }
+}
+
+function useState(initialState, stateWrappers, stateWrappersWithSetters, refreshComponent) {
+    const stateWrapper = { value: initialState }
+    stateWrappers.push(stateWrapper)
+    const setter = (newValueOrReducer) => {
+        if (typeof newValueOrReducer === 'function') {
+            stateWrapper.value = newValueOrReducer(stateWrapper.value)
+        } else {
+            stateWrapper.value = newValueOrReducer
+        }
+        refreshComponent()
+    };
+
+    stateWrappersWithSetters.push([stateWrapper, setter])
+    return [stateWrappers.value, setter]
+}
+
+function createChildren(componentInstance, ChildrenComponentFunction, props = {}) {
+    componentInstance.childrenIndex++
+
+    const alreadyExistedComponentInstance = componentInstance.childrenComponents?.[componentInstance.childrenIndex]
+
+    if (alreadyExistedComponentInstance) {
+        if (alreadyExistedComponentInstance.type === ChildrenComponentFunction) {
+            if (propsTheSame(props, alreadyExistedComponentInstance.props)) {
+                return alreadyExistedComponentInstance
+            } else {
+                alreadyExistedComponentInstance.props = props
+                alreadyExistedComponentInstance.renderLiba.refresh()
+                return alreadyExistedComponentInstance
+            }
+        } else {
+            delete componentInstance.childrenComponents[componentInstance.childrenIndex]
+        }
+    }
+
+    return Liba.create(ChildrenComponentFunction, props, {parent: componentInstance})
+}
+
+function renderComponent(componentInstance, stateWrappersWithSetters) {
+    componentInstance.childrenIndex = -1;
+
+    componentInstance.type.render({
+        element: componentInstance.element,
+        localState: componentInstance.localState,
+        statesWithSetters: stateWrappersWithSetters.map(swws => [swws[0].value, swws[1]]),
+        props: componentInstance.props,
+        liba: componentInstance.renderLiba
+    })
+}
+
+function refresh(componentInstance, stateWrappersWithSetters) {
+    // todo: if element doesn't hav innerHTML??
+    componentInstance.element.innerHTML = ''
+
+    componentInstance.childrenComponents?.forEach(cc => cc.cleanup?.())
+    //componentInstance.childrenComponents = []
+
+    renderComponent(componentInstance, stateWrappersWithSetters);
 }
