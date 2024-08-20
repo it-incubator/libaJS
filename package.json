@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/it-incubator/libaJS/issues"
   },
-  "homepage": "https://github.com/it-incubator/libaJS#readme"
+  "homepage": "https://github.com/it-incubator/libaJS#readme",
+  "dependencies": {
+    "typescript": "^5.5.4"
+  }
 }
