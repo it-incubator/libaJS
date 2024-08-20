@@ -97,6 +97,9 @@ export const Liba: TLiba = {
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
             refresh: renderLiba.refresh,
+            //signal(){},
+            //computed(){},
+            //effect(){},
             useState: (initialState) => {
                 const stateWrapper = { value: initialState }
                 stateWrappers.push(stateWrapper)

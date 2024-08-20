@@ -25,7 +25,17 @@
     "url": "https://github.com/it-incubator/libaJS/issues"
   },
   "homepage": "https://github.com/it-incubator/libaJS#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
   "dependencies": {
+    "@babel/preset-env": "^7.25.3",
+    "babel-jest": "^29.7.0",
     "typescript": "^5.5.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[tj]sx?$": "babel-jest"
+    }
   }
 }
