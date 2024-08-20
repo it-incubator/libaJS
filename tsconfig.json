@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES6",
+    "moduleResolution": "node",
+    "strict": false,
+  },
+  "include": ["liba/**/*.ts"], 
+  "exclude": ["node_modules"] 
+}
