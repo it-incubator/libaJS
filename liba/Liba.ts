@@ -3,7 +3,7 @@ import { ensureChildren } from './utils/ensureChildren.js'
 
 
 type TLiba = {
-    create<P extends {}>(ComponentFunction: TComponentFunction, props?: P, params?: TCreateMethodParams): ReturnType<TComponentFunction>;
+    create<P extends {}>(ComponentFunction: TComponentFunction, props?: Partial<P>, params?: TCreateMethodParams): ReturnType<TComponentFunction>;
     refresh: TRefresh
 }
 
@@ -13,44 +13,42 @@ type TComponentFunction  = {
 }
 
 type TComponentInstance<P extends {}, EL extends HTMLElement, LS extends {}> = {
-    props?: P
+    props?: Partial<P>
     element: EL;
     localState?: LS
     type?: TComponentFunction; //тут не совсем понятно
-    refresh?: () => void;
-    childrenIndex?: number;
-    childrenComponents?: any[];
+    refresh: () => void;
+    childrenIndex: number;
+    childrenComponents?: TComponentInstance<any, any, any>[];
     
 }
 
 type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS extends {}> = {
     element: EL;
-    props?: P;
+    props?: Partial<P>;
     localState?: LS;
-    statesWithSetters: any[]; //Тут как-то нужно сделать чтобы типы пробрасывались с дженерика TComponentLiba 47сипрка
+    statesWithSetters: Array<[TStateWrapperWithSetter<any>[0]["value"], TDispatch<any>]>; //Тут как-то нужно сделать чтобы типы пробрасывались с дженерика TComponentLiba 47сипрка
     liba: {};
 }
 
 type TRefresh = () => void;
 
 type TCreateMethodParams = {
-    parent?: any;
+    parent?: TComponentInstance<any, any, any> | null;
 }
 
 type TRenderLiba = {
-    create<P extends {}>(ComponentFunction: TComponentFunction, props?: P): ReturnType<TComponentFunction>;
+    create<P extends {}>(ComponentFunction: TComponentFunction, props?: Partial<P>): ReturnType<TComponentFunction>;
     refresh: TRefresh
 }
 
-
-//---этот кусок сделал с помощью chatGpt
 type TSetStateAction<T> = T | ((prevState: T) => T);
 type TDispatch<T> = (action: TSetStateAction<T>) => void;
 type TComponentLiba = {
     refresh: TRefresh;
     useState: <T>(initialState: T) => [T, TDispatch<T>]
 }
-//---
+type TStateWrapperWithSetter<T> = [{ value: T }, TDispatch<T>];
 
 
 
@@ -74,7 +72,7 @@ export const Liba: TLiba = {
                             return alreadyExistedComponentInstance
                         }
                     } else {
-                        delete componentInstance.childrenComponents[componentInstance.childrenIndex]
+                        delete componentInstance.childrenComponents?.[componentInstance.childrenIndex]
                     }
                 }
 
@@ -92,17 +90,18 @@ export const Liba: TLiba = {
         }
 
         let stateWrappers = []
-        let stateWrappersWithSetters = [] //[[]];
+        let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
 
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
             refresh: renderLiba.refresh,
-            useState: (initialState) => {
+            useState: <T>(initialState: T): [T, TDispatch<T>] => {
                 const stateWrapper = { value: initialState }
                 stateWrappers.push(stateWrapper)
-                const setter = (newValueOrReducer) => {
+
+                const setter: TDispatch<T> = (newValueOrReducer: TSetStateAction<T>) => {
                     if (typeof newValueOrReducer === 'function') {
-                        stateWrapper.value = newValueOrReducer(stateWrapper.value)
+                        stateWrapper.value = (newValueOrReducer as (prevState: T) => T)(stateWrapper.value);
                     } else {
                         stateWrapper.value = newValueOrReducer
                     }
@@ -112,7 +111,7 @@ export const Liba: TLiba = {
                 stateWrappersWithSetters.push([stateWrapper, setter])
                 console.log(stateWrappers, "stateWrappers");
                 
-                return [stateWrapper.value, setter] as const//было stateWrappers.value возможно ошибка
+                return [stateWrapper.value, setter] as const
             }
         }
 
@@ -124,7 +123,7 @@ export const Liba: TLiba = {
         //Проверяем есть ли parent, если он есть пушим наш инстанс в массив childrenComponents
         if (parent) {
             ensureChildren(parent)
-            parent.childrenComponents[parent.childrenIndex] = componentInstance
+            parent.childrenComponents![parent.childrenIndex] = componentInstance
         } 
 
         function renderComponent() {
