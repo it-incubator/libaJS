@@ -1,41 +1,45 @@
-import {Counter} from "./counter.js";
-import {Todos} from "./todos/todos.js";
+import { Counter } from "./counter.js";
+import { Todos } from "./todos/todos.js";
 
-export function App(_, {liba}) {
-    const element = document.createElement("div")
+export function App(_, { liba }) {
+  const element = document.createElement("div");
 
-    liba.useState({
-        menuItemId: 'todos', // 'counter'
-    })
+  const localState = liba.useState({
+    menuItemId: "todos", // 'counter'
+  });
 
-    return {
-        element
-    }
+  return {
+    element,
+    localState,
+  };
 }
 
-App.render = ({element, statesWithSetters, liba}) => {
-    const [state, setMenuItemId] = statesWithSetters[0]
-    const menuSelector = document.createElement('select')
+App.render = ({ element, localState, liba }) => {
+  const { menuItemId = "todos" } = localState ?? {};
+  const menuSelector = document.createElement("select");
 
-    const menuItem1 = document.createElement('option')
-    menuItem1.value = 'counter'
-    menuItem1.append('Counter')
-    const menuItem2 = document.createElement('option')
-    menuItem2.value = 'todos'
-    menuItem2.append('Todolist')
-    menuSelector.append(menuItem1,menuItem2);
-    menuSelector.value = state.menuItemId
-    element.append(menuSelector)
+  const menuItem1 = document.createElement("option");
+  menuItem1.value = "counter";
+  menuItem1.append("Counter");
 
-    menuSelector.addEventListener('change', () => {
-        setMenuItemId({menuItemId: menuSelector.value})
-    })
-    if (state.menuItemId === 'counter') {
-        const counterComponent = liba.create(Counter)
-        element.append(counterComponent.element)
-    }
-    if (state.menuItemId === 'todos') {
-        const todosComponent = liba.create(Todos)
-        element.append(todosComponent.element)
-    }
-}
+  const menuItem2 = document.createElement("option");
+  menuItem2.value = "todos";
+  menuItem2.append("Todolist");
+
+  menuSelector.append(menuItem1, menuItem2);
+  menuSelector.value = menuItemId;
+  element.append(menuSelector);
+
+  menuSelector.addEventListener("change", () => {
+    localState.menuItemId = menuSelector.value;
+  });
+
+  if (menuItemId === "counter") {
+    const counterComponent = liba.create(Counter);
+    element.append(counterComponent.element);
+  }
+  if (menuItemId === "todos") {
+    const todosComponent = liba.create(Todos);
+    element.append(todosComponent.element);
+  }
+};
