@@ -3,8 +3,8 @@
     "module": "ESNext",
     "target": "ES6",
     "moduleResolution": "node",
-    "strict": false,
+    "strict": true,
   },
-  "include": ["liba/**/*.ts"], 
+  "include": ["liba/**/*.ts", "examples/**/*.ts"], 
   "exclude": ["node_modules"] 
 }
