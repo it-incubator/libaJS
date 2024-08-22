@@ -10,23 +10,23 @@ type TLiba = {
 }
 
 type TComponentFunction  = {
-    <P extends {}, EL extends HTMLElement, LS extends {}>(props: P, ParamsObject: { liba: TComponentLiba },): TComponentInstance<P, EL, LS>;
-    render: <P extends {}, EL extends HTMLElement, LS extends {}>(args: TComponentRenderFunctionArgs<P, EL, LS>) => void;
+    <P extends {}, LS extends {}>(props: P, ParamsObject: { liba: TComponentLiba },): TComponentInstance<P, LS>;
+    render: <P extends {}, LS extends {}>(args: TComponentRenderFunctionArgs<P, LS>) => void;
 }
 
-type TComponentInstance<P extends {}, EL extends HTMLElement, LS extends {}> = {
+type TComponentInstance<P extends {}, LS extends {}> = {
     props?: Partial<P>
-    element: EL;
+    element: HTMLElement;
     localState?: LS
     type?: TComponentFunction;
     refresh?: () => void;
     childrenIndex?: number;
-    childrenComponents?: TComponentInstance<any, any, any>[];
+    childrenComponents?: TComponentInstance<any, any>[];
     
 }
 
-type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS extends {}> = {
-    element: EL;
+type TComponentRenderFunctionArgs<P extends {}, LS extends {}> = {
+    element: HTMLElement;
     props?: Partial<P>;
     localState?: LS;
     statesWithSetters: Array<[TStateWrapperWithSetter<any>[0]["value"], TDispatch<any>]>;
@@ -36,7 +36,7 @@ type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS exten
 type TRefresh = () => void;
 
 type TCreateMethodParams = {
-    parent?: TComponentInstance<any, any, any> | null;
+    parent?: TComponentInstance<any, any> | null;
 }
 
 type TRenderLiba = {
