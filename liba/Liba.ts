@@ -5,28 +5,31 @@ import { ensureChildren } from './utils/ensureChildren.js'
 
 
 type TLiba = {
-    create<P extends {}>(ComponentFunction: TComponentFunction, props?: Partial<P>, params?: TCreateMethodParams): ReturnType<TComponentFunction>;
-    refresh: TRefresh
+    create<P extends {}, EL extends HTMLElement, LS extends {}>(
+        ComponentFunction: TComponentFunction<P, EL, LS>,
+        props?: Partial<P>,
+        params?: TCreateMethodParams
+    ): TComponentInstance<P, EL, LS>;
+    refresh: TRefresh;
 }
 
-type TComponentFunction  = {
-    <P extends {}, LS extends {}>(props: P, ParamsObject: { liba: TComponentLiba },): TComponentInstance<P, LS>;
-    render: <P extends {}, LS extends {}>(args: TComponentRenderFunctionArgs<P, LS>) => void;
+type TComponentFunction<P extends {}, EL extends HTMLElement, LS extends {}> = {
+    (props:Partial<P>, ParamsObject: { liba: TComponentLiba }): TComponentInstance<Partial<P>, EL, LS>;
+    render: (args: TComponentRenderFunctionArgs<P, EL, LS>) => void;
 }
 
-type TComponentInstance<P extends {}, LS extends {}> = {
-    props?: Partial<P>
-    element: HTMLElement;
-    localState?: LS
-    type?: TComponentFunction;
+type TComponentInstance<P extends {}, EL extends HTMLElement, LS extends {}> = {
+    props?: Partial<P>;
+    element: EL;
+    localState?: LS;
+    type?: TComponentFunction<P, EL, LS>;
     refresh?: () => void;
     childrenIndex?: number;
-    childrenComponents?: TComponentInstance<any, any>[];
-    
+    childrenComponents?: TComponentInstance<any, any, any>[];
 }
 
-type TComponentRenderFunctionArgs<P extends {}, LS extends {}> = {
-    element: HTMLElement;
+type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS extends {}> = {
+    element: EL;
     props?: Partial<P>;
     localState?: LS;
     statesWithSetters: Array<[TStateWrapperWithSetter<any>[0]["value"], TDispatch<any>]>;
@@ -36,19 +39,22 @@ type TComponentRenderFunctionArgs<P extends {}, LS extends {}> = {
 type TRefresh = () => void;
 
 type TCreateMethodParams = {
-    parent?: TComponentInstance<any, any> | null;
+    parent?: TComponentInstance<any, any, any> | null;
 }
 
 type TRenderLiba = {
-    create<P extends {}>(ComponentFunction: TComponentFunction, props?: Partial<P>): ReturnType<TComponentFunction>;
-    refresh: TRefresh
+    create<P extends {}, EL extends HTMLElement, LS extends {}>(
+        ComponentFunction: TComponentFunction<P, EL, LS>,
+        props?: Partial<P>
+    ): TComponentInstance<P, EL, LS>;
+    refresh: TRefresh;
 }
 
 type TSetStateAction<T> = T | ((prevState: T) => T);
 type TDispatch<T> = (action: TSetStateAction<T>) => void;
 type TComponentLiba = {
     refresh: TRefresh;
-    useState: <T>(initialState: T) => [T, TDispatch<T>]
+    useState: <T>(initialState: T) => [T, TDispatch<T>];
 }
 type TStateWrapperWithSetter<T> = [{ value: T }, TDispatch<T>];
 
