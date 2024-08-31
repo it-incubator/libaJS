@@ -1,6 +1,5 @@
-import {App} from "./app.js";
-import {Liba} from "../../liba/Liba.js";
-
+import {Liba} from "../../liba/Liba.ts";
+import {App} from "./app.ts";
 
 const rootElement = document.getElementById('root')
 

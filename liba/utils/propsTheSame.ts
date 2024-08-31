@@ -1,4 +1,4 @@
-export function propsTheSame(prevProps, newProps) {
+export function propsTheSame<T extends {}>(prevProps: T, newProps: T): boolean {
     if (prevProps === newProps) return true;
 
     if ((prevProps == null && newProps != null) || (prevProps != null && newProps == null)) {
