@@ -19,4 +19,11 @@ Todo.render = ({element, props}) => {
     })
     element.append(isDoneCheckbox)
     element.append(props.todo.title)
+
+    const deleteButton = document.createElement("button")
+    deleteButton.innerText = "x"
+    deleteButton.addEventListener("click", () => {
+        props.deleteTodo(props.todo.id)
+    })
+    element.append(deleteButton)
 }

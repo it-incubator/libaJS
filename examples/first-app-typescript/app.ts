@@ -1,5 +1,5 @@
-import {Counter} from "./counter.js";
-import {Todos} from "./todos/todos.js";
+import {Counter} from "./counter";
+import {Todos} from "./todos/todos";
 
 export function App(_, {liba}) {
     const element = document.createElement("div")

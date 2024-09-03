@@ -8,12 +8,13 @@ export function createChildren<
 >(
     componentInstance: CI,
     ChildrenComponentFunction: CF,
-    props: P
+    props: P,
+    key?: string
 ): TComponentInstance<Partial<any>, any, {}>
 {
     componentInstance.childrenIndex++
 
-    const alreadyExistedComponentInstance = componentInstance.childrenComponents?.[componentInstance.childrenIndex]
+    const alreadyExistedComponentInstance = componentInstance.childrenComponents?.getItem(ChildrenComponentFunction, key)
 
     if (alreadyExistedComponentInstance) {
         if (alreadyExistedComponentInstance.type === ChildrenComponentFunction) {
@@ -29,5 +30,5 @@ export function createChildren<
         }
     }
 
-    return Liba.create(ChildrenComponentFunction, props, {parent: componentInstance})
+    return Liba.create(ChildrenComponentFunction, props, {parent: componentInstance, key: key})
 }

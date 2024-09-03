@@ -1,10 +1,11 @@
 //@ts-ignore
-import { propsTheSame } from './utils/propsTheSame.ts'
-import { ensureChildren } from './utils/ensureChildren.ts'
-import { createChildren } from './utils/createChildren.ts'
-import { useState } from "./utils/useState.ts"
-import {renderComponent} from "./utils/renderComponent.ts"
-import {refresh} from "./utils/refresh.ts"
+import { propsTheSame } from './utils/propsTheSame'
+import { ensureChildren } from './utils/ensureChildren'
+import { createChildren } from './utils/createChildren'
+import { useState } from "./utils/useState"
+import {renderComponent} from "./utils/renderComponent"
+import {refresh} from "./utils/refresh"
+import {CacheManager} from "./utils/children-cache-manager.ts";
 
 
 type TLiba = {
@@ -28,7 +29,7 @@ export type TComponentInstance<P extends {}, EL extends HTMLElement, LS extends 
     type?: TComponentFunction<P, EL, LS>;
     refresh?: () => void;
     childrenIndex?: number;
-    childrenComponents?: TComponentInstance<any, any, any>[];
+    childrenComponents?: CacheManager<any>;
     renderLiba: TRenderLiba;
     cleanup?: () => void
 }
@@ -65,7 +66,7 @@ export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 
 
 export const Liba: TLiba = {
-    create(ComponentFunction, props = {}, { parent } = { parent: null }) {
+    create(ComponentFunction, props = {}, { parent, key } = { parent: null, key: null }) {
 
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
 
@@ -83,15 +84,15 @@ export const Liba: TLiba = {
 
         componentInstance.renderLiba = {
             create: (
-                ChildrenComponentFunction, props = {}
-            ) => createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props),
+                ChildrenComponentFunction, props = {}, {key} = {key:null}
+            ) => createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props, key),
             refresh: () => refresh(componentInstance, stateWrappersWithSetters)
         }
 
         //Проверяем есть ли parent, если он есть пушим наш инстанс в массив childrenComponents
         if (parent) {
             ensureChildren(parent)
-            parent.childrenComponents![parent.childrenIndex!] = componentInstance
+            parent.childrenComponents.addItem(componentInstance, ComponentFunction, key)
         }
 
         renderComponent(componentInstance, stateWrappersWithSetters)

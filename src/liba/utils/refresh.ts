@@ -8,7 +8,11 @@ export function refresh(
     // todo: if element doesn't hav innerHTML??
     componentInstance.element.innerHTML = ''
 
-    componentInstance.childrenComponents?.forEach(cc => cc.cleanup?.())
+    if (componentInstance.childrenComponents) {
+        for (const cc of componentInstance.childrenComponents) {
+            cc.cleanup?.();
+        }
+    }
     //componentInstance.childrenComponents = []
 
     renderComponent(componentInstance, stateWrappersWithSetters);

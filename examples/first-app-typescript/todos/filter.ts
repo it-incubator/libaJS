@@ -1,5 +1,5 @@
 export function Filter(props) {
-    const element = document.createElement("li")
+    const element = document.createElement("div")
 
     return {
         element,
@@ -9,6 +9,7 @@ export function Filter(props) {
 }
 
 Filter.render = ({element, props}) => {
+    console.log("FILTER RENDERING...")
    const allButton = document.createElement("button")
     allButton.append('all')
     allButton.addEventListener('click', () => {props.setFilter('all')})

@@ -1,8 +1,9 @@
-import {Todo} from "./todo.js";
-import {Filter} from "./filter.js";
+import {Todo} from "./todo";
+import {Filter} from "./filter";
+import {AddItemForm} from "./add-item-form";
 
 export function Todos(_, {liba}) {
-    const element = document.createElement("ul")
+    const element = document.createElement("div")
 
     liba.useState( [
         {id: 1, title: 'milk', isDone: false},
@@ -20,17 +21,33 @@ export function Todos(_, {liba}) {
     return component
 }
 
-Todos.render = ({element, statesWithSetters, props, liba}) => {
+Todos.render = ({element: rootElement, statesWithSetters, props, liba}) => {
+    const element = document.createElement("ul")
+
+
     const [todos, setTodos] = statesWithSetters[0]
     const [filter, setFilter] = statesWithSetters[1]
 
+    console.log(todos)
+
     const setIsDone =  (todoId, isDone) => {
-            setTodos(todos.map(td => td.id === todoId ? {...td, isDone} : td))
+            setTodos((prev) => prev.map(td => td.id === todoId ? {...td, isDone} : td))
     }
 
-    const filterComponent = liba.create(Filter, {filter, setFilter})
+    const deleteTodo =  (todoId) => {
+       setTodos(prev => prev.filter(td => td.id !== todoId))
+    }
 
-    element.append(filterComponent.element)
+    let addItem = (value) => {
+        setTodos(prev => [...prev, {id: Date.now(), title: value, isDone: false}])
+    };
+
+    const addItemFormComponent = liba.create(AddItemForm, {itemAdded: addItem})
+
+    rootElement.append(addItemFormComponent.element)
+
+    rootElement.append(element)
+
 
     let todosForRender = todos;
     switch (filter) {
@@ -41,9 +58,10 @@ Todos.render = ({element, statesWithSetters, props, liba}) => {
 
     for (let i = 0; i < todosForRender.length; i++){
       const todo = todosForRender[i]
-      const todoComponent = liba.create(Todo, {todo, setIsDone: setIsDone})
+      const todoComponent = liba.create(Todo, {todo, setIsDone: setIsDone, deleteTodo}, {key: todo.id})
       element.append(todoComponent.element)
     }
 
-
+    const filterComponent = liba.create(Filter, {filter, setFilter})
+    rootElement.append(filterComponent.element)
 }
