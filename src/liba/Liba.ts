@@ -1,4 +1,4 @@
-//@ts-ignore
+// @ts-nocheck
 import { propsTheSame } from './utils/propsTheSame'
 import { ensureChildren } from './utils/ensureChildren'
 import { createChildren } from './utils/createChildren'
