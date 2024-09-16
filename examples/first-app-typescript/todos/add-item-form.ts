@@ -3,7 +3,6 @@ export function AddItemForm(props) {
 
     return {
         element,
-        cleanup: () => {},
         props
     }
 }

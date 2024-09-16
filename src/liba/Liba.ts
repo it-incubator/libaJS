@@ -76,6 +76,7 @@ export const Liba: TLiba = {
 
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
         let effectsWrappers: Array<UseEffectCallback> = [];
+        let cleanupWrappers: Array<UseEffectCallback> = [];
 
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
@@ -90,8 +91,12 @@ export const Liba: TLiba = {
                 const proxy = new Proxy(dependency[1], {
                   apply: (target, thisArg, argumentsList) => {
                     target(...argumentsList);
-                    callback();
-                  }
+                    const cleanupFn = callback();
+
+                    if (cleanupFn) {
+                      cleanupWrappers.push(cleanupFn);
+                    }
+                  },
                 });
 
                 const index = stateWrappersWithSetters.findIndex(([, setter]) => setter === dependency[1]);
@@ -108,7 +113,7 @@ export const Liba: TLiba = {
             create: (
                 ChildrenComponentFunction, props = {}, {key} = {key:null}
             ) => createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props, key),
-            refresh: () => refresh(componentInstance, stateWrappersWithSetters)
+            refresh: () => refresh(componentInstance, stateWrappersWithSetters, cleanupWrappers),
         }
 
         //Проверяем есть ли parent, если он есть пушим наш инстанс в массив childrenComponents

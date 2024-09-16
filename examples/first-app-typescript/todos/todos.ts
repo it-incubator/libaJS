@@ -19,7 +19,6 @@ export function Todos(_, {liba}) {
 
     const component = {
         element,
-        cleanup: () => {}
     }
 
     return component

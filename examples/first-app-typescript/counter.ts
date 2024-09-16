@@ -1,22 +1,25 @@
 export function Counter(_, {liba}) {
     const element = document.createElement("div")
 
-    const [localState, setState] = liba.useState(1)
+    const state = liba.useState(1)
+    const [localState, setState] = state;
 
-    const interval = setInterval(() => {
+    liba.useEffect(() => {
+      console.log('=== Counter | useEffect 1 ===');
+
+      const interval = setInterval(() => {
         setState((prev) => prev + 1)
         console.log('Counter Tick')
     }, 1000);
 
-    liba.useEffect(() => {
-      console.log('=== Counter | useEffect 1 ===');
-    }, []);
+      return () => {
+        console.log('=== Counter | useEffect 1 | cleanup ===')
+        clearInterval(interval);
+      }
+    }, [state]);
 
     return {
         element,
-        cleanup: () => {
-            clearInterval(interval)
-        }
     }
 }
 

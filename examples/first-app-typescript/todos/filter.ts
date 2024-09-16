@@ -3,7 +3,6 @@ export function Filter(props) {
 
     return {
         element,
-        cleanup: () => {},
         props
     }
 }

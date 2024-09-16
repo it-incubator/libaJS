@@ -3,15 +3,14 @@ import {TComponentInstance, TStateWrapperWithSetter} from "../Liba";
 
 export function refresh(
     componentInstance: TComponentInstance<any, any, any>,
-    stateWrappersWithSetters: TStateWrapperWithSetter<any>
+    stateWrappersWithSetters: TStateWrapperWithSetter<any>,
+    cleanupWrappers: any[],
 ): void {
     // todo: if element doesn't hav innerHTML??
     componentInstance.element.innerHTML = ''
 
-    if (componentInstance.childrenComponents) {
-        for (const cc of componentInstance.childrenComponents) {
-            cc.cleanup?.();
-        }
+    for (const cleanup of cleanupWrappers) {
+      cleanup();
     }
     //componentInstance.childrenComponents = []
 

@@ -10,10 +10,19 @@ export function App(_, {liba}) {
 
     liba.useEffect(() => {
       console.log('=== App | useEffect 1 ===');
+
+      return () => {
+        // Не должен выполняться
+        console.log('=== App | useEffect 1 | cleanup ===');
+      }
     }, []);
 
     liba.useEffect(() => {
       console.log('=== App | useEffect 2 ===');
+
+      return () => {
+        console.log('=== App | useEffect 2 | cleanup ===');
+      }
     }, [state]);
 
     return {
