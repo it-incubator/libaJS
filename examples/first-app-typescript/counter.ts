@@ -6,8 +6,11 @@ export function Counter(_, {liba}) {
     const interval = setInterval(() => {
         setState((prev) => prev + 1)
         console.log('Counter Tick')
-    }, 1000)
+    }, 1000);
 
+    liba.useEffect(() => {
+      console.log('=== Counter | useEffect 1 ===');
+    }, []);
 
     return {
         element,

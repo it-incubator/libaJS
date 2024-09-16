@@ -58,8 +58,14 @@ type TRenderLiba = {
 
 type TSetStateAction<T> = T | ((prevState: T) => T);
 export type TDispatch<T> = (action: TSetStateAction<T>) => void;
+
+type UseEffectCallback = () => VoidFunction | void;
+type UseEffectDependencies = any[];
+type UseEffect = (callback: UseEffectCallback, dependencies: UseEffectDependencies[]) => void
+
 type TComponentLiba = {
     useState: <T>(initialState: T) => [T, TDispatch<T>];
+    useEffect: UseEffect;
 }
 export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 
@@ -69,13 +75,29 @@ export const Liba: TLiba = {
     create(ComponentFunction, props = {}, { parent, key } = { parent: null, key: null }) {
 
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
+        let effectsWrappers: Array<UseEffectCallback> = [];
 
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
             useState: <T>(initialState: T): [T, TDispatch<T>] => {
                 const refreshComponent = () => componentInstance.renderLiba.refresh()
                 return useState<T>(initialState, stateWrappersWithSetters, refreshComponent)
-            }
+            },
+            useEffect: (callback, dependencies) => {
+              effectsWrappers.push(callback);
+
+              dependencies.forEach((dependency) => {
+                const proxy = new Proxy(dependency[1], {
+                  apply: (target, thisArg, argumentsList) => {
+                    target(...argumentsList);
+                    callback();
+                  }
+                });
+
+                const index = stateWrappersWithSetters.findIndex(([, setter]) => setter === dependency[1]);
+                stateWrappersWithSetters[index][1] = proxy;
+              });
+            },
         }
 
         const componentInstance = ComponentFunction(props, { liba: componentLiba })
@@ -95,7 +117,10 @@ export const Liba: TLiba = {
             parent.childrenComponents.addItem(componentInstance, ComponentFunction, key)
         }
 
-        renderComponent(componentInstance, stateWrappersWithSetters)
+        renderComponent(componentInstance, stateWrappersWithSetters);
+        effectsWrappers.forEach((callback) => {
+          callback();
+        });
 
         return componentInstance
     },

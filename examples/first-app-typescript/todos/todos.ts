@@ -5,13 +5,17 @@ import {AddItemForm} from "./add-item-form";
 export function Todos(_, {liba}) {
     const element = document.createElement("div")
 
-    liba.useState( [
+    const state = liba.useState( [
         {id: 1, title: 'milk', isDone: false},
         {id: 2, title: 'bread', isDone: true},
         {id: 3, title: 'juice', isDone: true}
     ])
 
     liba.useState('all');// all / done / active
+
+    liba.useEffect(() => {
+      console.log('=== Todos | useEffect 1 ===');
+    }, [state]);
 
     const component = {
         element,

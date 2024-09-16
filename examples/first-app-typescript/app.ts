@@ -4,9 +4,17 @@ import {Todos} from "./todos/todos";
 export function App(_, {liba}) {
     const element = document.createElement("div")
 
-    liba.useState({
+    const state = liba.useState({
         menuItemId: 'todos', // 'counter'
-    })
+    });
+
+    liba.useEffect(() => {
+      console.log('=== App | useEffect 1 ===');
+    }, []);
+
+    liba.useEffect(() => {
+      console.log('=== App | useEffect 2 ===');
+    }, [state]);
 
     return {
         element
