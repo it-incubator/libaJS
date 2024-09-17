@@ -6,6 +6,7 @@ import { useState } from "./utils/useState"
 import {renderComponent} from "./utils/renderComponent"
 import {refresh} from "./utils/refresh"
 import {CacheManager} from "./utils/children-cache-manager.ts";
+import {createHtmlElement, HtmlElementProps} from "./utils/createHtmlElement.ts";
 
 
 type TLiba = {
@@ -60,6 +61,7 @@ type TSetStateAction<T> = T | ((prevState: T) => T);
 export type TDispatch<T> = (action: TSetStateAction<T>) => void;
 type TComponentLiba = {
     useState: <T>(initialState: T) => [T, TDispatch<T>];
+    create: (tagName: keyof HTMLElementTagNameMap, props?: HtmlElementProps) => HTMLElement;
 }
 export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 
@@ -70,23 +72,52 @@ export const Liba: TLiba = {
 
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
 
+        let rootComponentElement = null;
+
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
             useState: <T>(initialState: T): [T, TDispatch<T>] => {
                 const refreshComponent = () => componentInstance.renderLiba.refresh()
                 return useState<T>(initialState, stateWrappersWithSetters, refreshComponent)
+            },
+            create(elementName, props = {}) {
+                rootComponentElement = createHtmlElement(elementName, props) as any
+                return rootComponentElement
             }
         }
 
         const componentInstance = ComponentFunction(props, { liba: componentLiba })
+        if (rootComponentElement === null) {
+            // todo: create LibaError extends Error
+            throw new Error('You must call liba.create in your component function for creating root element: ' + ComponentFunction.name)
+        }
 
+        componentInstance.element = rootComponentElement
+
+        componentInstance.props = props as any
         componentInstance.type = ComponentFunction
 
         componentInstance.renderLiba = {
-            create: (
-                ChildrenComponentFunction, props = {}, {key} = {key:null}
-            ) => createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props, key),
-            refresh: () => refresh(componentInstance, stateWrappersWithSetters)
+            create(
+                ChildrenComponentFunction, props = {}, {key, append} = {key:null}
+            ) {
+                // нам прилетает в параметре либо функциональный компонент либо html элемент в виде названия строки, например 'div'
+                if (typeof ChildrenComponentFunction === 'function') {
+                    const newComponent = createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props, key)
+                    rootComponentElement.append(newComponent.element)
+                    return newComponent
+                } else {
+                    const newElement = createHtmlElement(ChildrenComponentFunction, props) as any
+                    // todo: think how make it better
+                    if (append !== false) {
+                        rootComponentElement.append(newElement)
+                    }
+                    return newElement
+                }
+            },
+            refresh() {
+                refresh(componentInstance, stateWrappersWithSetters)
+            }
         }
 
         //Проверяем есть ли parent, если он есть пушим наш инстанс в массив childrenComponents

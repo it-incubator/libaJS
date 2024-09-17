@@ -1,5 +1,5 @@
 export function Counter(_, {liba}) {
-    const element = document.createElement("div")
+    liba.create("div")
 
     const [localState, setState] = liba.useState(1)
 
@@ -10,14 +10,13 @@ export function Counter(_, {liba}) {
 
 
     return {
-        element,
         cleanup: () => {
             clearInterval(interval)
         }
     }
 }
 
-Counter.render = ({element, statesWithSetters}) => {
+Counter.render = ({statesWithSetters, liba}) => {
     let counterStateWrapper = statesWithSetters[0];
-    element.append(counterStateWrapper[0])
+    liba.create('span', { children: [counterStateWrapper[0]] })
 }

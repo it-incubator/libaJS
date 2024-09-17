@@ -3,7 +3,7 @@ import {Filter} from "./filter";
 import {AddItemForm} from "./add-item-form";
 
 export function Todos(_, {liba}) {
-    const element = document.createElement("div")
+    liba.create("div")
 
     liba.useState( [
         {id: 1, title: 'milk', isDone: false},
@@ -14,16 +14,15 @@ export function Todos(_, {liba}) {
     liba.useState('all');// all / done / active
 
     const component = {
-        element,
+        // element,
         cleanup: () => {}
     }
 
     return component
 }
 
-Todos.render = ({element: rootElement, statesWithSetters, props, liba}) => {
-    const element = document.createElement("ul")
-
+Todos.render = ({statesWithSetters, props, liba}) => {
+    console.log('TODOS RENDERING')
 
     const [todos, setTodos] = statesWithSetters[0]
     const [filter, setFilter] = statesWithSetters[1]
@@ -42,12 +41,7 @@ Todos.render = ({element: rootElement, statesWithSetters, props, liba}) => {
         setTodos(prev => [...prev, {id: Date.now(), title: value, isDone: false}])
     };
 
-    const addItemFormComponent = liba.create(AddItemForm, {itemAdded: addItem})
-
-    rootElement.append(addItemFormComponent.element)
-
-    rootElement.append(element)
-
+    liba.create(AddItemForm, {itemAdded: addItem})
 
     let todosForRender = todos;
     switch (filter) {
@@ -56,12 +50,15 @@ Todos.render = ({element: rootElement, statesWithSetters, props, liba}) => {
         case 'active': todosForRender = todos.filter(t => !t.isDone); break;
     }
 
+    const items = []
     for (let i = 0; i < todosForRender.length; i++){
       const todo = todosForRender[i]
       const todoComponent = liba.create(Todo, {todo, setIsDone: setIsDone, deleteTodo}, {key: todo.id})
-      element.append(todoComponent.element)
+        items.push(todoComponent.element)
     }
+    liba.create("ul", {
+        children: items
+    })
 
-    const filterComponent = liba.create(Filter, {filter, setFilter})
-    rootElement.append(filterComponent.element)
+    liba.create(Filter, {filter, setFilter})
 }
