@@ -37,17 +37,28 @@ interface ILiba {
 
 export const Liba: ILiba = {
   createElement: (type, props, children) => {
-    const rootComponentElement = document.createElement('div');
+    let rootComponentElement = null;
     const renderLiba = Liba;
 
     if (typeof type === 'string') {
       const newElement = createHtmlElement(type, props) as any;
-      rootComponentElement.append(newElement);
+      rootComponentElement = newElement;
     }
     
     if (typeof type === 'function') {
       const newElement = type(props, { liba: renderLiba });
-      rootComponentElement.append(newElement);
+      rootComponentElement = newElement;
+    }
+
+    // Children
+    if (children) {
+      if (Array.isArray(children)) {
+        children.forEach((libaElement) => {
+          rootComponentElement.append(libaElement);
+        })
+      } else {
+        rootComponentElement.append(children);
+      }
     }
 
     return rootComponentElement;
@@ -55,7 +66,6 @@ export const Liba: ILiba = {
   createRoot: (element) => {
     return {
       render: (AppComponent) => {
-        debugger;
         element.append(AppComponent({}, { liba: Liba }));
       }
     };
