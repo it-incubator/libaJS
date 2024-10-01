@@ -3,18 +3,9 @@ import {Todos} from "./todos/todos";
 
 export function App(_, {liba}) {
     liba.create("div")
-
-    liba.useState({
+    const [state, setMenuItemId] = liba.useState({
         menuItemId: 'todos', // 'counter'
     })
-
-    return {
-        //element
-    }
-}
-
-App.render = ({statesWithSetters, liba}) => {
-    const [state, setMenuItemId] = statesWithSetters[0]
 
     liba.create('select', {
         value: state.menuItemId,

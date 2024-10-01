@@ -6,37 +6,38 @@ import { useState } from "./utils/useState"
 import {renderComponent} from "./utils/renderComponent"
 import {refresh} from "./utils/refresh"
 import {CacheManager} from "./utils/children-cache-manager.ts";
-import {createHtmlElement, HtmlElementProps} from "./utils/createHtmlElement.ts";
+import {createHtmlElement} from "./utils/createHtmlElement.ts";
 
 
 type TLiba = {
-    create<P extends {}, EL extends HTMLElement, LS extends {}>(
-        ComponentFunction: TComponentFunction<P, EL, LS>,
+    create<P extends {}, LS extends {}>(
+        ComponentFunction: TComponentFunction<P, LS>,
         props?: Partial<P>,
         params?: TCreateMethodParams
-    ): TComponentInstance<P, EL, LS>;
-    refresh: TRefresh;
+    ): TComponentInstance<P, LS>;
 }
 
-export type TComponentFunction<P extends {}, EL extends HTMLElement, LS extends {}> = {
-    (props:Partial<P>, ParamsObject: { liba: TComponentLiba }): TComponentInstance<Partial<P>, EL, LS>;
-    render: (args: TComponentRenderFunctionArgs<P, EL, LS>) => void;
+export type TComponentFunction<P extends {}, LS extends {}> = {
+    (props:Partial<P>, ParamsObject: { liba: TRenderLiba }): TComponentInstance<Partial<P>, LS>;
 }
 
-export type TComponentInstance<P extends {}, EL extends HTMLElement, LS extends {}> = {
+export type TComponentInstance<P extends {}, LS extends {}> = {
     props?: Partial<P>;
-    element: EL;
+    element: any;
+    status: 'created' | 'first-rendering' | 'other';
     localState?: LS;
-    type?: TComponentFunction<P, EL, LS>;
+    type?: TComponentFunction<P, LS>;
     refresh?: () => void;
     childrenIndex?: number;
+    useStateCallIndex?: number;
+    useEffectCallIndex?: number;
     childrenComponents?: CacheManager<any>;
     renderLiba: TRenderLiba;
     cleanup?: () => void
+    cleanups: (() => void)[]
 }
 
-type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS extends {}> = {
-    element: EL;
+type TComponentRenderFunctionArgs<P extends {}, LS extends {}> = {
     props?: Partial<P>;
     localState?: LS;
     statesWithSetters: Array<[TStateWrapperWithSetter<any>[0]["value"], TDispatch<any>]>;
@@ -46,22 +47,25 @@ type TComponentRenderFunctionArgs<P extends {}, EL extends HTMLElement, LS exten
 type TRefresh = () => void;
 
 type TCreateMethodParams = {
-    parent?: TComponentInstance<any, any, any> | null;
+    parent?: TComponentInstance<any, any> | null;
 }
 
 type TRenderLiba = {
     create<P extends {}, EL extends HTMLElement, LS extends {}>(
-        ComponentFunction: TComponentFunction<P, EL, LS>,
+        ComponentFunction: TComponentFunction<P, LS>,
         props?: Partial<P>
-    ): TComponentInstance<P, EL, LS>;
-    refresh: TRefresh
+    ): TComponentInstance<P, LS>;
+    refresh: TRefresh,
+    useState: any,
+    useEffect: (effect: () =>  (() => {}) | void, deps: any[]) => void,
+    createRoot_: any
 }
 
 type TSetStateAction<T> = T | ((prevState: T) => T);
 export type TDispatch<T> = (action: TSetStateAction<T>) => void;
 type TComponentLiba = {
     useState: <T>(initialState: T) => [T, TDispatch<T>];
-    create: (tagName: keyof HTMLElementTagNameMap, props?: HtmlElementProps) => HTMLElement;
+    create: (tagName: keyof HTMLElementTagNameMap, props?: any) => HTMLElement;
 }
 export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 
@@ -86,37 +90,85 @@ export const Liba: TLiba = {
             }
         }
 
-        const componentInstance = ComponentFunction(props, { liba: componentLiba })
-        if (rootComponentElement === null) {
-            // todo: create LibaError extends Error
-            throw new Error('You must call liba.create in your component function for creating root element: ' + ComponentFunction.name)
-        }
+        const componentInstance: TComponentInstance<any, any> = {} as TComponentInstance<any, any>
 
-        componentInstance.element = rootComponentElement
+       // ComponentFunction(props, { liba: componentLiba })
+        // if (rootComponentElement === null) {
+        //     // todo: create LibaError extends Error
+        //     throw new Error('You must call liba.create in your component function for creating root element: ' + ComponentFunction.name)
+        // }
+
+        componentInstance.status = 'created'
+        componentInstance.cleanups = []
+
+        componentInstance.element = null
 
         componentInstance.props = props as any
-        componentInstance.type = ComponentFunction
+        componentInstance.type = ComponentFunction as any
 
         componentInstance.renderLiba = {
             create(
                 ChildrenComponentFunction, props = {}, {key, append} = {key:null}
             ) {
+                if (componentInstance.childrenIndex === -1 && componentInstance.element !== null) {
+                    componentInstance.childrenIndex++
+                    return;
+                }
+
+                if (componentInstance.childrenIndex === -1 && componentInstance.element === null) {
+                    componentInstance.element = createHtmlElement(ChildrenComponentFunction as keyof HTMLElementTagNameMap, props) as any
+                    componentInstance.childrenIndex++
+                    return componentInstance.element
+                }
+
                 // нам прилетает в параметре либо функциональный компонент либо html элемент в виде названия строки, например 'div'
                 if (typeof ChildrenComponentFunction === 'function') {
-                    const newComponent = createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any, any>, props, key)
-                    rootComponentElement.append(newComponent.element)
+                    const newComponent = createChildren(componentInstance, ChildrenComponentFunction as TComponentFunction<any, any>, props, key)
+                    componentInstance.element.append(newComponent.element)
                     return newComponent
                 } else {
+                    componentInstance.childrenIndex++
                     const newElement = createHtmlElement(ChildrenComponentFunction, props) as any
                     // todo: think how make it better
                     if (append !== false) {
-                        rootComponentElement.append(newElement)
+                        componentInstance.element.append(newElement)
                     }
                     return newElement
                 }
             },
             refresh() {
                 refresh(componentInstance, stateWrappersWithSetters)
+            },
+            useState: <T>(initialState: T): [T, TDispatch<T>] => {
+                componentInstance.useStateCallIndex++;
+                if (componentInstance.status === 'first-rendering') {
+                    const refreshComponent = () => componentInstance.renderLiba.refresh()
+                    return useState<T>(initialState, stateWrappersWithSetters, refreshComponent)
+                } else {
+                    const stateWrappersWithSetter = stateWrappersWithSetters[componentInstance.useStateCallIndex]
+                    return ([
+                        stateWrappersWithSetter[0].value as any,
+                        stateWrappersWithSetter[1]
+                    ])
+                }
+            },
+
+            useEffect(effect: any, deps = []) {
+                if (componentInstance.status === 'first-rendering') {
+                    const cleanup = effect()
+                    console.log('Effect called')
+                    if (cleanup) {
+                        componentInstance.cleanups.push(cleanup)
+                    }
+                } else {
+                    // analyze dependencies
+                }
+            },
+
+            createRoot_(elementName, props = {}) {
+                if (componentInstance.element !== null) return;
+                componentInstance.element = createHtmlElement(elementName, props) as any
+                return rootComponentElement
             }
         }
 
@@ -129,8 +181,5 @@ export const Liba: TLiba = {
         renderComponent(componentInstance, stateWrappersWithSetters)
 
         return componentInstance
-    },
-    refresh() {
-
     }
 }
