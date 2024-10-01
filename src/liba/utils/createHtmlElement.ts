@@ -29,7 +29,7 @@ export function createHtmlElement(tagName: keyof HTMLElementTagNameMap, props: H
         else if (key === 'checked' && tagName === 'input') {
             (element as HTMLInputElement).checked = Boolean(props[key]);
         }
-        else if (key === 'value' && (tagName === 'input' || tagName === 'textarea')) {
+        else if (key === 'value' && (tagName === 'input' || tagName === 'textarea' || tagName === 'select')) {
             (element as HTMLInputElement | HTMLTextAreaElement).value = props[key];
         }
         else if (key === 'disabled') {
