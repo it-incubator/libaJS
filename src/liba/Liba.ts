@@ -7,6 +7,8 @@ import {renderComponent} from "./utils/renderComponent"
 import {refresh} from "./utils/refresh"
 import {CacheManager} from "./utils/children-cache-manager.ts";
 import {createHtmlElement} from "./utils/createHtmlElement.ts";
+import { useStateGuard } from './utils/useStateGuard.ts'
+import { useEffectGuard } from './utils/useEffectGuard.ts'
 
 
 type TLiba = {
@@ -74,9 +76,13 @@ export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 export const Liba: TLiba = {
     create(ComponentFunction, props = {}, { parent, key } = { parent: null, key: null }) {
 
+        let effectsDepsWrapper = [];
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
 
         let rootComponentElement = null;
+
+        let useStateCallCountOnFirstRender = 0;
+        let useEffectCallCountOnFirstRender = 0;
 
         //Либа которую передаем в саму функцию-компонент
         const componentLiba: TComponentLiba = {
@@ -141,7 +147,13 @@ export const Liba: TLiba = {
             },
             useState: <T>(initialState: T): [T, TDispatch<T>] => {
                 componentInstance.useStateCallIndex++;
+
+                if (useStateGuard(componentInstance, useStateCallCountOnFirstRender)) {
+                  throw new Error('Между рендерами разное количество useState!');
+                }
+
                 if (componentInstance.status === 'first-rendering') {
+                    useStateCallCountOnFirstRender++;
                     const refreshComponent = () => componentInstance.renderLiba.refresh()
                     return useState<T>(initialState, stateWrappersWithSetters, refreshComponent)
                 } else {
@@ -154,13 +166,39 @@ export const Liba: TLiba = {
             },
 
             useEffect(effect: any, deps = []) {
+                componentInstance.useEffectCallIndex++;
+
+                if (useEffectGuard(componentInstance, useEffectCallCountOnFirstRender)) {
+                  throw new Error('Между рендерами разное количество useEffect!');
+                }
+
                 if (componentInstance.status === 'first-rendering') {
+                    useEffectCallCountOnFirstRender++;
+
                     const cleanup = effect()
+                    effectsDepsWrapper.push(deps);
                     console.log('Effect called')
                     if (cleanup) {
                         componentInstance.cleanups.push(cleanup)
+                    } else {
+                        componentInstance.cleanups.push(() => {});
                     }
                 } else {
+                  const effectDeps = effectsDepsWrapper[componentInstance.useEffectCallIndex];
+                  
+                  if (effectDeps.length !== deps.length) {
+                    throw new Error('Нельзя менять список зависимостей!');
+                  }
+
+                  effectDeps.forEach((el, i) => {
+                    if (el !== deps[i]) {
+                      componentInstance.cleanups[componentInstance.useEffectCallIndex]();
+                      const cleanup = effect() || (() => {});
+
+                      effectsDepsWrapper[componentInstance.useEffectCallIndex] = deps;
+                      componentInstance.cleanups[componentInstance.useEffectCallIndex] = cleanup;
+                    }
+                  });
                     // analyze dependencies
                 }
             },
