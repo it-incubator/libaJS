@@ -76,6 +76,7 @@ export type TStateWrapperWithSetter<T> = [ T, TDispatch<T>];
 export const Liba: TLiba = {
     create(ComponentFunction, props = {}, { parent, key } = { parent: null, key: null }) {
 
+        let effectsDepsWrapper = [];
         let stateWrappersWithSetters: Array<TStateWrapperWithSetter<any>> = [];
 
         let rootComponentElement = null;
@@ -175,11 +176,29 @@ export const Liba: TLiba = {
                     useEffectCallCountOnFirstRender++;
 
                     const cleanup = effect()
+                    effectsDepsWrapper.push(deps);
                     console.log('Effect called')
                     if (cleanup) {
                         componentInstance.cleanups.push(cleanup)
+                    } else {
+                        componentInstance.cleanups.push(() => {});
                     }
                 } else {
+                  const effectDeps = effectsDepsWrapper[componentInstance.useEffectCallIndex];
+                  
+                  if (effectDeps.length !== deps.length) {
+                    throw new Error('Нельзя менять список зависимостей!');
+                  }
+
+                  effectDeps.forEach((el, i) => {
+                    if (el !== deps[i]) {
+                      componentInstance.cleanups[componentInstance.useEffectCallIndex]();
+                      const cleanup = effect() || (() => {});
+
+                      effectsDepsWrapper[componentInstance.useEffectCallIndex] = deps;
+                      componentInstance.cleanups[componentInstance.useEffectCallIndex] = cleanup;
+                    }
+                  });
                     // analyze dependencies
                 }
             },
