@@ -28,7 +28,7 @@ export function App(_, {liba}) {
     return;
   }
 
-  users.map((user) => {
+  users.forEach((user) => {
     liba.create(UserCard, { user }, { key: user.id })
   })
 }
