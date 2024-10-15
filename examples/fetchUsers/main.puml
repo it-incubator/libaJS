@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant Liba
+participant renderC
+participant App
+
+User -> Liba: .create(App)
+Liba -> renderC: (cInstance)
+renderC -> App: (props)
+Liba -> User: cInstance
+User -> Liba: .append(cInstance)
+
+@enduml

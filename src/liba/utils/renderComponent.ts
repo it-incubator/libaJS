@@ -12,7 +12,7 @@ export function renderComponent(
         componentInstance.status = 'first-rendering';
     }
 
-    componentInstance.type(
+    const element = componentInstance.type(
         // localState: componentInstance.localState,
         // statesWithSetters: stateWrappersWithSetters.map(swws => [swws[0].value, swws[1]]),
         componentInstance.props,
@@ -20,6 +20,8 @@ export function renderComponent(
             liba: componentInstance.renderLiba
         }
     )
+
+    componentInstance.element = element
 
     componentInstance.status = 'other';
 }

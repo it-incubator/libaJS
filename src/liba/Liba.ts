@@ -17,6 +17,7 @@ type TLiba = {
         props?: Partial<P>,
         params?: TCreateMethodParams
     ): TComponentInstance<P, LS>;
+    append(rootAlement: any, component: any): any
 }
 
 export type TComponentFunction<P extends {}, LS extends {}> = {
@@ -84,18 +85,6 @@ export const Liba: TLiba = {
         let useStateCallCountOnFirstRender = 0;
         let useEffectCallCountOnFirstRender = 0;
 
-        //Либа которую передаем в саму функцию-компонент
-        const componentLiba: TComponentLiba = {
-            useState: <T>(initialState: T): [T, TDispatch<T>] => {
-                const refreshComponent = () => componentInstance.renderLiba.refresh()
-                return useState<T>(initialState, stateWrappersWithSetters, refreshComponent)
-            },
-            create(elementName, props = {}) {
-                rootComponentElement = createHtmlElement(elementName, props) as any
-                return rootComponentElement
-            }
-        }
-
         const componentInstance: TComponentInstance<any, any> = {} as TComponentInstance<any, any>
 
        // ComponentFunction(props, { liba: componentLiba })
@@ -116,16 +105,16 @@ export const Liba: TLiba = {
             create(
                 ChildrenComponentFunction, props = {}, {key, append} = {key:null}
             ) {
-                if (componentInstance.childrenIndex === -1 && componentInstance.element !== null) {
-                    componentInstance.childrenIndex++
-                    return;
-                }
+                //if (componentInstance.childrenIndex === -1 && componentInstance.element !== null) {
+               //     componentInstance.childrenIndex++
+                //    return;
+                //}
 
-                if (componentInstance.childrenIndex === -1 && componentInstance.element === null) {
-                    componentInstance.element = createHtmlElement(ChildrenComponentFunction as keyof HTMLElementTagNameMap, props) as any
-                    componentInstance.childrenIndex++
-                    return componentInstance.element
-                }
+                // if (componentInstance.childrenIndex === -1 && componentInstance.element === null) {
+                //     componentInstance.element = createHtmlElement(ChildrenComponentFunction as keyof HTMLElementTagNameMap, props) as any
+                //     componentInstance.childrenIndex++
+                //     return componentInstance.element
+                // }
 
                 // нам прилетает в параметре либо функциональный компонент либо html элемент в виде названия строки, например 'div'
                 if (typeof ChildrenComponentFunction === 'function') {
@@ -136,9 +125,9 @@ export const Liba: TLiba = {
                     componentInstance.childrenIndex++
                     const newElement = createHtmlElement(ChildrenComponentFunction, props) as any
                     // todo: think how make it better
-                    if (append !== false) {
-                        componentInstance.element.append(newElement)
-                    }
+                    // if (append !== false) {
+                    //     componentInstance.element.append(newElement)
+                    // }
                     return newElement
                 }
             },
@@ -219,5 +208,9 @@ export const Liba: TLiba = {
         renderComponent(componentInstance, stateWrappersWithSetters)
 
         return componentInstance
+    },
+    append(parentElement, component) {
+        parentElement.append(component.element)
+        component.parentElement = parentElement
     }
 }

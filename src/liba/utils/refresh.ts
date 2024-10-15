@@ -6,7 +6,9 @@ export function refresh(
     stateWrappersWithSetters: TStateWrapperWithSetter<any>
 ): void {
     // todo: if element doesn't hav innerHTML??
-    componentInstance.element.innerHTML = ''
+    //@ts-ignore
+    componentInstance.parentElement.innerHTML = ''
+
 
     if (componentInstance.childrenComponents) {
         for (const cc of componentInstance.childrenComponents) {
@@ -16,4 +18,9 @@ export function refresh(
     //componentInstance.childrenComponents = []
 
     renderComponent(componentInstance, stateWrappersWithSetters);
+
+    //@ts-ignore
+    componentInstance.parentElement.append(componentInstance.element)
+
+
 }

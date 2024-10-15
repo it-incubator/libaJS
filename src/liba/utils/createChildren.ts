@@ -14,7 +14,8 @@ export function createChildren<
 {
     componentInstance.childrenIndex++
 
-    const alreadyExistedComponentInstance = componentInstance.childrenComponents?.getItem(ChildrenComponentFunction, key)
+    const alreadyExistedComponentInstance: any = null
+    //const alreadyExistedComponentInstance = componentInstance.childrenComponents?.getItem(ChildrenComponentFunction, key)
 
     if (alreadyExistedComponentInstance) {
         if (alreadyExistedComponentInstance.type === ChildrenComponentFunction) {

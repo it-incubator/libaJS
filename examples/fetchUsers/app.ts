@@ -1,34 +1,45 @@
-import { makeRequest } from "./utils/makeRequest.ts";
-import { UserCard } from './UserCard.ts';
+import {makeRequest} from "./utils/makeRequest.ts";
+import {UserCard} from './UserCard.ts';
 
 const getUsers = () => makeRequest('https://jsonplaceholder.typicode.com/users');
 
 export function App(_, {liba}) {
-  liba.create('div');
 
-  const [users, setUsers] = liba.useState([]);
-  const [isLoading, setIsLoading] = liba.useState(false);
 
-  const onClickButton = async () => {
-    setIsLoading(true);
-    const users = await getUsers();
-    setIsLoading(false);
-    setUsers(users);
-  };
+    const [users, setUsers] = liba.useState([]);
+    const [isLoading, setIsLoading] = liba.useState(false);
 
-  liba.create('button', {
-    children: ['Загрузить пользователей'],
-    onClick: onClickButton,
-  });
+    const onClickButton = async () => {
+        setIsLoading(true);
+        const users = await getUsers();
+        setIsLoading(false);
+        setUsers(users);
+    };
 
-  if (isLoading) {
-    liba.create('div', {
-      children: ['Загрузка...']
-    })
-    return;
-  }
+    if (isLoading) {
+        return liba.create('div', {
+          children: [
+            liba.create('button', {
+              children: ['Загрузить пользователей'],
+              onClick: onClickButton,
+            }),
+            'Загрузка...']
+        })
+    }
 
-  users.forEach((user) => {
-    liba.create(UserCard, { user }, { key: user.id })
-  })
+    return liba.create('div', {
+        children: [
+            liba.create('button', {
+                children: ['Загрузить пользователей'],
+                onClick: onClickButton,
+            }),
+            users
+                .filter((u, i) => i < 1)
+                .map((user) => {
+                return liba.create(UserCard, {user}, {key: user.id})
+            })
+        ]
+    });
+
+
 }

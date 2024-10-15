@@ -1,0 +1,26 @@
+@startuml
+actor User
+participant Liba
+participant renderC
+participant App
+participant renderLiba
+participant UserCard
+
+User -> Liba: .create(App)
+Liba -> renderC: (cInstance)
+renderC -> App: (props, renderLiba)
+App -> renderLiba: .create('button')
+App <-- renderLiba: bElement
+App -> renderLiba: .create(UserCard)
+    renderLiba -> UserCard: (props, renderLiba)
+    UserCard -> renderLiba: .create('div')
+    UserCard -> renderLiba: .create('div')
+    UserCard --> renderLiba: element
+App <-- renderLiba: uInstance
+App --> renderLiba: .create('div', [bElement,uInstance])
+
+
+
+
+
+@enduml

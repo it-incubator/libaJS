@@ -35,7 +35,9 @@ https://chatgpt.com/share/2813fe42-b11b-476e-a7ff-7c62c78e6a39
 
 - ✅ если между рендерами кол-во вызовов хуков меняется - генерировать ошибку (hackertask)
 - ✅ добавить в useEffect массив зависимостей (hackertask)
-- 🟩 rewrite cacheManager like react fiber tree (on the lesson)
+- 🟩 create tree component structure (on the lesson)
+- 🟩 VDOM -> real DOM (on the lesson)
+- 🟩 reconcilation: rewrite cacheManager like react fiber tree (on the lesson)
 - 🟩 must remove componentInstance.element.innerHTML = ''
 - 🟩 liba.createSignal, liba.createComputed, liba.creteEffect (hackertask)
 - 🟩 refactoring, typescript
