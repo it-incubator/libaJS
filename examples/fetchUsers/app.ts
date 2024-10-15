@@ -4,10 +4,10 @@ import { UserCard } from './UserCard.ts';
 const getUsers = () => makeRequest('https://jsonplaceholder.typicode.com/users');
 
 export function App(_, {liba}) {
-  const element = document.createElement("div");
+  liba.create('div');
 
-  const [, setUsers] = liba.useState([]);
-  const [, setIsLoading] = liba.useState(false);
+  const [users, setUsers] = liba.useState([]);
+  const [isLoading, setIsLoading] = liba.useState(false);
 
   const onClickButton = async () => {
     setIsLoading(true);
@@ -16,32 +16,19 @@ export function App(_, {liba}) {
     setUsers(users);
   };
 
-  return {
-    element,
-    props: { onClickButton },
-  }
-}
-
-App.render = ({ element, statesWithSetters, liba, props }) => {
-  const {
-    onClickButton,
-  } = props;
-
-  const buttonElement = document.createElement('button');
-  buttonElement.innerHTML = 'Загрузить пользователей';
-  buttonElement.onclick = onClickButton;
-
-  element.append(buttonElement);
-  
-  const [[users], [isLoading]] = statesWithSetters;
+  liba.create('button', {
+    children: ['Загрузить пользователей'],
+    onClick: onClickButton,
+  });
 
   if (isLoading) {
-    element.append('Загрузка...')
+    liba.create('div', {
+      children: ['Загрузка...']
+    })
     return;
   }
 
-  users.map((user, i) => {
-    const userCardComponent = liba.create(UserCard, { user }, { key: i });
-    element.append(userCardComponent.element);
+  users.map((user) => {
+    liba.create(UserCard, { user }, { key: user.id })
   })
-};
+}
