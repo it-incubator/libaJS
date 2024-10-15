@@ -1,23 +1,18 @@
 export function Counter(_, {liba}) {
-    const element = document.createElement("div")
-
+    console.log('Counter rendering')
     const [localState, setState] = liba.useState(1)
 
-    const interval = setInterval(() => {
-        setState((prev) => prev + 1)
-        console.log('Counter Tick')
-    }, 1000)
+    liba.useEffect(() =>{
+        const interval = setInterval(() => {
+            setState((prev) => prev + 1)
+            console.log('Counter Tick')
+        }, 1000)
 
-
-    return {
-        element,
-        cleanup: () => {
+        return () => {
             clearInterval(interval)
         }
-    }
-}
+    })
 
-Counter.render = ({element, statesWithSetters}) => {
-    let counterStateWrapper = statesWithSetters[0];
-    element.append(counterStateWrapper[0])
+    liba.create("div")
+    liba.create('span', { children: [localState] })
 }

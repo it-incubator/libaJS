@@ -2,40 +2,32 @@ import {Counter} from "./counter";
 import {Todos} from "./todos/todos";
 
 export function App(_, {liba}) {
-    const element = document.createElement("div")
-
-    liba.useState({
+    liba.create("div")
+    const [state, setMenuItemId] = liba.useState({
         menuItemId: 'todos', // 'counter'
     })
 
-    return {
-        element
-    }
-}
-
-App.render = ({element, statesWithSetters, liba}) => {
-    const [state, setMenuItemId] = statesWithSetters[0]
-    const menuSelector = document.createElement('select')
-
-    const menuItem1 = document.createElement('option')
-    menuItem1.value = 'counter'
-    menuItem1.append('Counter')
-    const menuItem2 = document.createElement('option')
-    menuItem2.value = 'todos'
-    menuItem2.append('Todolist')
-    menuSelector.append(menuItem1,menuItem2);
-    menuSelector.value = state.menuItemId
-    element.append(menuSelector)
-
-    menuSelector.addEventListener('change', () => {
-        setMenuItemId({menuItemId: menuSelector.value})
+    liba.create('select', {
+        value: state.menuItemId,
+        children: [
+            liba.create('option', {
+                value: 'counter',
+                children: ['Counter']
+            }, {append: false}),
+            liba.create('option', {
+                value: 'todos',
+                children: ['Todolist']
+            }, {append: false}),
+        ],
+        onChange: (e) => {
+            setMenuItemId({menuItemId: e.currentTarget.value})
+        }
     })
+
     if (state.menuItemId === 'counter') {
-        const counterComponent = liba.create(Counter)
-        element.append(counterComponent.element)
+        liba.create(Counter)
     }
     if (state.menuItemId === 'todos') {
-        const todosComponent = liba.create(Todos)
-        element.append(todosComponent.element)
+        liba.create(Todos)
     }
 }

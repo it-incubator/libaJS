@@ -1,29 +1,21 @@
-export function Todo(props) {
-    const element = document.createElement("li")
-
-    return {
-        element,
-        cleanup: () => {},
-        props
-    }
-}
-
-Todo.render = ({element, props}) => {
+export function Todo(props, {liba}) {
+    liba.create("li")
     console.log('TODO RENDERED', props)
 
-    const isDoneCheckbox = document.createElement("input")
-    isDoneCheckbox.type = 'checkbox'
-    isDoneCheckbox.checked = props.todo.isDone
-    isDoneCheckbox.addEventListener("change", () => {
-        props.setIsDone(props.todo.id, isDoneCheckbox.checked)
+    liba.create("input", {
+        type: 'checkbox',
+        checked: props.todo.isDone,
+        onChange: (e) => {
+            props.setIsDone(props.todo.id, e.currentTarget.checked)
+        }
     })
-    element.append(isDoneCheckbox)
-    element.append(props.todo.title)
 
-    const deleteButton = document.createElement("button")
-    deleteButton.innerText = "x"
-    deleteButton.addEventListener("click", () => {
-        props.deleteTodo(props.todo.id)
+    liba.create('span', {children: [props.todo.title]})
+
+    liba.create("button", {
+        children: ['x'],
+        onClick: () => {
+            props.deleteTodo(props.todo.id)
+        }
     })
-    element.append(deleteButton)
 }

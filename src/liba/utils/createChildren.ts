@@ -2,15 +2,15 @@ import {propsTheSame} from "./propsTheSame";
 import {Liba, TComponentFunction, TComponentInstance} from "../Liba";
 
 export function createChildren<
-    CI extends TComponentInstance<any, any, any>,
-    CF extends TComponentFunction<any, any, any>,
+    CI extends TComponentInstance<any, any>,
+    CF extends TComponentFunction<any, any>,
     P extends {}
 >(
     componentInstance: CI,
     ChildrenComponentFunction: CF,
     props: P,
     key?: string
-): TComponentInstance<Partial<any>, any, {}>
+): TComponentInstance<Partial<any>, {}>
 {
     componentInstance.childrenIndex++
 
@@ -19,6 +19,7 @@ export function createChildren<
     if (alreadyExistedComponentInstance) {
         if (alreadyExistedComponentInstance.type === ChildrenComponentFunction) {
             if (propsTheSame(props, alreadyExistedComponentInstance.props)) {
+                //componentInstance.childrenComponents?.killGroupsBefore(ChildrenComponentFunction, key)
                 return alreadyExistedComponentInstance
             } else {
                 alreadyExistedComponentInstance.props = props

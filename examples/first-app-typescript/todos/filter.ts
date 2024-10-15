@@ -1,26 +1,19 @@
-export function Filter(props) {
-    const element = document.createElement("div")
-
-    return {
-        element,
-        cleanup: () => {},
-        props
-    }
-}
-
-Filter.render = ({element, props}) => {
+export function Filter(props, {liba}) {
+    liba.create("div")
     console.log("FILTER RENDERING...")
-   const allButton = document.createElement("button")
-    allButton.append('all')
-    allButton.addEventListener('click', () => {props.setFilter('all')})
 
-    const doneButton = document.createElement("button")
-    doneButton.append('done')
-    doneButton.addEventListener('click', () => {props.setFilter('done')})
+    const allButton = liba.create("button", {
+        children: ['all'],
+        onClick: () => {props.setFilter('all')}
+    })
 
-    const activeButton = document.createElement("button")
-    activeButton.append('active')
-    activeButton.addEventListener('click', () => {props.setFilter('active')})
+    const doneButton = liba.create("button", {
+        children: ['done'],
+        onClick: () => {props.setFilter('done')}
+    })
 
-    element.append(allButton, doneButton, activeButton)
+    const activeButton = liba.create('button', {
+        children: ['active'],
+        onClick: () => {props.setFilter('active')}
+    })
 }
