@@ -7,17 +7,6 @@ export function createHtmlElement(tagName: keyof HTMLElementTagNameMap, props: H
     // Создаем элемент на основе переданного имени тега
     const element = document.createElement(tagName);
 
-    // Обрабатываем детей (если существуют)
-    if (Array.isArray(props.children)) {
-        props.children.forEach(child => {
-            if (typeof child === 'string' || typeof child === 'number') {
-                element.append(child.toString()); // Добавляем как текст
-            } else if (child instanceof HTMLElement) {
-                element.append(child); // Добавляем как узел
-            }
-        });
-    }
-
     // Обрабатываем остальные атрибуты и события
     Object.keys(props).forEach(key => {
         if (key === 'children') return; // Пропускаем ключ "children", так как он уже обработан

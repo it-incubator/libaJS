@@ -3,7 +3,6 @@ export function UserCard(props, { liba }) {
     user,
   } = props;
 
-
   const child =  liba.create('div', {
     children: [user.name]
   })

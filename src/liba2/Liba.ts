@@ -2,12 +2,14 @@ import {FiberNode, FiberNode} from "./utils/create-fiber-node.ts";
 import {createVirtualNode} from "./utils/create-virtual-node.ts";
 
 export const Liba: any = {
-    create(ComponentFunctionOrTagName, props = {}, {parentFiber}: {parentFiber?:any} = {}) {
+    create(ComponentFunctionOrTagName, props: any = {}) {
            const fiberNode = new FiberNode(ComponentFunctionOrTagName, props)
 
-           if (parentFiber) {
-               parentFiber.children.push(fiberNode)
-           }
+        // если у текущего компонента есть дети (уже созданные ранее файберы
+        // нужно из запушить в родительский файбер
+        if (props.children?.length) {
+            props.children.forEach((childFiber: any) => fiberNode.children.push(childFiber))
+        }
 
            if (typeof ComponentFunctionOrTagName === 'function') {
                const renderLiba = {
@@ -16,9 +18,13 @@ export const Liba: any = {
                    }
                }
 
-               const childFiberNode = ComponentFunctionOrTagName(props, {
+               // каждый компоннет выполняясь, внутри себя обязан запустить
+               // liba.create а значит вернёт один корневой файбер компонента.
+               const rootChildFiber = ComponentFunctionOrTagName(props, {
                    liba: renderLiba
                })
+
+               fiberNode.children.push(rootChildFiber)
 
                //const virtualNode = createVirtualNode(ComponentFunction, props)
                fiberNode.virtualNode = createVirtualNode(fiberNode);

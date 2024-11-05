@@ -12,10 +12,25 @@ export const LibaDOM: any = {
 
 
 function renderFiberNode(fiberNode: any, parentElement: any) {
-    if (typeof fiberNode.type === 'string'){
-        const element = createHtmlElement(fiberNode.virtualNode.type, fiberNode.props)
+    let element
+    // если это псевдофайбер - тупой текстовый узел..
+    // то просто всятавить в родителя
+    if (typeof fiberNode === 'string') {
+        parentElement.append(fiberNode)
+        return;
+    }
+    // если это html тэг - создать элемент и в родителя вставить
+    else if (typeof fiberNode.type === 'string'){
+        element = createHtmlElement(fiberNode.virtualNode.type, fiberNode.props)
         parentElement.append(element)
     } else {
-        renderFiberNode(fiberNode.children[0], parentElement)
+        // если это не тег - значит какой-то компонент, который
+        // по сути не надо рисовать.. нечего там рисовать.
+        // поэтому будем пробегать по его детям ниже... но в качестве родителя
+        // пердадим не себя как родителя, а нашего родителя, ведь здесь
+        // настоящий html элемент
+        element = parentElement;
     }
+
+    fiberNode.children?.forEach((child: any) => renderFiberNode(child, element))
 }

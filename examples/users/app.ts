@@ -1,6 +1,8 @@
-export function App(_, {liba}: any) {
-//    const [user, setUser] = liba.useState({name:'Nikita'});
+import {UserCard} from "./UserCard";
 
+export function App(_, {liba}: any) {
+   // const [user, setUser] = liba.useState({name:'Nikita'});
+    let user = {id: 1, name:'Nikita'}
     return liba.create('div', { //<div>
         children: [
             'hello world',
@@ -12,7 +14,7 @@ export function App(_, {liba}: any) {
                     children: ['Удалить пользователей']
                 })]
             }),
-            // liba.create(UserCard, {user}, {key: user.id})
+            liba.create(UserCard, {user})
         ]
     });
 
