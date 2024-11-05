@@ -1,10 +1,9 @@
 import { App } from "./app";
-import { Liba } from "../../src/liba/Liba";
+import { Liba } from "../../src/liba2/Liba";
+import { LibaDOM } from "../../src/liba2/LibaDOM";
 
-const rootElement = document.getElementById('root')
+const rootElement = LibaDOM.createRoot(document.getElementById('root'))
 
-const appComponent = Liba.create(App);
+const fiberNode = Liba.create(App);
 
-Liba.append(rootElement, appComponent)
-
-
+rootElement.render(fiberNode)
