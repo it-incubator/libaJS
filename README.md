@@ -14,6 +14,18 @@ Instructions for use will be later.
 
 ## License
 
+## How to start demo examples:
+
+```bash
+npm install
+npm run dev
+```
+Go to url: http://localhost:5173/examples/users/index.html
+
+
+
+
+
 Add your license information here.
 
 
