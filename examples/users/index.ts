@@ -6,4 +6,7 @@ const rootElement = LibaDOM.createRoot(document.getElementById('root'))
 
 const fiberNode = Liba.create(App);
 
+// @ts-ignore
+window.fiberNode = fiberNode;
+
 rootElement.render(fiberNode)

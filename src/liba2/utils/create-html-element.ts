@@ -22,6 +22,7 @@ export function createHtmlElement(tagName: keyof HTMLElementTagNameMap, props: H
             (element as HTMLInputElement | HTMLTextAreaElement).value = props[key];
         }
         else if (key === 'disabled') {
+            // @ts-ignore
             element[key] = Boolean(props[key]);
         }
         else {

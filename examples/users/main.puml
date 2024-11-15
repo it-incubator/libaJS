@@ -1,4 +1,4 @@
-x§@startuml
+@startuml
 actor User
 participant Liba
 participant renderC
