@@ -1,4 +1,63 @@
 import {createHtmlElement} from "./utils/create-html-element.ts";
+import { Liba } from "../../src/liba2/Liba";
+
+Liba.onFiberTreeChanged = (rootElement, patchesTree) => {
+    patch(rootElement, patchesTree)
+}
+
+function patch(parent, patchObj, index = 0) {
+    if (!patchObj) return;
+
+    const el = parent.childNodes[index];
+
+    switch (patchObj.type) {
+        case 'CREATE': {
+            const newEl = createHtmlElement(patchObj.newVNode);
+            parent.appendChild(newEl);
+            break;
+        }
+        case 'REMOVE': {
+            if (el) {
+                parent.removeChild(el);
+            }
+            break;
+        }
+        case 'REPLACE': {
+            const newEl = createHtmlElement(patchObj.newVNode);
+            if (el) {
+                parent.replaceChild(newEl, el);
+            } else {
+                parent.appendChild(newEl);
+            }
+            break;
+        }
+        case 'TEXT': {
+            if (el) {
+                el.textContent = patchObj.newVNode;
+            }
+            break;
+        }
+        case 'UPDATE': {
+            if (el) {
+                const { props, children } = patchObj;
+
+                props.forEach(({ key, value }) => {
+                    if (value === undefined) {
+                        el.removeAttribute(key);
+                    } else {
+                        el[key] = value;
+                    }
+                });
+
+                children.forEach((childPatch, i) => {
+                    patch(el, childPatch, i);
+                });
+            }
+            break;
+        }
+    }
+}
+
 
 export const LibaDOM: any = {
     createRoot(rootElement: any) {

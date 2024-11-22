@@ -1,16 +1,34 @@
-import {FiberNode, FiberNode} from "./utils/create-fiber-node.ts";
+import {FiberNode} from "./utils/create-fiber-node.ts";
 import {createVirtualNode} from "./utils/create-virtual-node.ts";
 import {useState} from "./utils/use-state.ts";
-import {renderFiberNode} from "./LibaDOM.ts";
+import {reconsilation} from "./utils/reconsilation.ts";
+
+
+// @ts-ignore
+window.rootFiber = null;
+// @ts-ignore
+window.rootVirtualNode = null;
 
 export const Liba: any = {
+    onFiberTreeChanged: () => {},
     create(ComponentFunctionOrTagName, props: any = {}) {
         const fiberNode = new FiberNode(ComponentFunctionOrTagName, props)
+        fiberNode.virtualNode = createVirtualNode(fiberNode);
+        // @ts-ignore
+        if (window.rootFiber === null) {
+            // @ts-ignore
+            window.rootFiber = fiberNode;
+            // @ts-ignore
+            window.rootVirtualNode = fiberNode.virtualNode;
+        }
 
-        // если у текущего компонента есть дети (уже созданные ранее файберы
+
+        // если у текущего компонента есть дети (уже созданные ранее файберы)
         // нужно из запушить в родительский файбер
         if (props.children?.length) {
-            props.children.forEach((childFiber: any) => fiberNode.children.push(childFiber))
+            props.children.forEach((childFiber: any) => {
+                fiberNode.children.push(childFiber);
+            })
         }
 
         if (typeof ComponentFunctionOrTagName === 'function') {
@@ -23,14 +41,17 @@ export const Liba: any = {
                         return  [fiberNode.stateNode[0][0].value, fiberNode.stateNode[0][1]];
                     } else {
                         const [wrapper, setValue] = useState(initialValue, () => {
-                            const newFiberVerion = ComponentFunctionOrTagName(fiberNode.props, {
+                            const newFiberVersion = ComponentFunctionOrTagName(fiberNode.props, {
                                 liba: renderLiba
                             })
                             fiberNode.rendersCount++;
 
-                            fiberNode.children[0].element.remove();
-                            fiberNode.children[0] = newFiberVerion;
-                            renderFiberNode(fiberNode,fiberNode.parentElement)
+                            const patchTree = reconsilation(fiberNode.children[0], newFiberVersion)
+
+                        //    fiberNode.children[0].element.remove();
+                         //   fiberNode.children[0] = newFiberVersion;
+                            Liba.onFiberTreeChanged(fiberNode.children[0].element, patchTree)
+                            fiberNode.children[0] = newFiberVersion;
                         })
 
                         fiberNode.pushState([wrapper, setValue]);
@@ -47,14 +68,16 @@ export const Liba: any = {
             const rootChildFiber = ComponentFunctionOrTagName(props, {
                 liba: renderLiba
             })
-            fiberNode.rendersCount++;
+            //rootChildFiber.virtualNode = createVirtualNode(fiberNode);
 
+            fiberNode.rendersCount++;
             fiberNode.children.push(rootChildFiber)
+           // fiberNode.virtualNode.children.push(rootChildFiber.virtualNode)
 
             //const virtualNode = createVirtualNode(ComponentFunction, props)
-            fiberNode.virtualNode = createVirtualNode(fiberNode);
+          //  fiberNode.virtualNode = createVirtualNode(fiberNode);
         } else {
-            fiberNode.virtualNode = createVirtualNode(fiberNode);
+            //
         }
 
         return fiberNode;

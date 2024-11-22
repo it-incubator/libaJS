@@ -2,11 +2,15 @@
 actor User
 
 participant index.ts
+participant LibaDOM
 participant Liba
-participant FiberTree
-participant LibaDom
+participant libaElement
 
+
+index.ts -> LibaDOM: .createRoot(rootHtmlElement)
+index.ts <-- LibaDOM: libaRoot
 index.ts -> Liba: .create(App)
-Liba -> FiberTree: .push(fiberNode)
+index.ts <-- Liba: fiberNode
+index.ts -> libaRoot: .render(fiberNode)
 
 @enduml

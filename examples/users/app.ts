@@ -2,7 +2,8 @@ import {UserCard} from "./UserCard";
 
 export function App(_, {liba}: any) {
    // const [user, setUser] = liba.useState({name:'Nikita'});
-    let user = {id: 1, name:'Nikita'}
+    let user1 = {id: 1, name:'Nikita'}
+    let user2 = {id: 2, name:'Vladislav'}
 
     const [count, setCount] = liba.useState(0)
 
@@ -21,7 +22,8 @@ export function App(_, {liba}: any) {
                     children: ['Удалить пользователей']
                 })]
             }),
-            liba.create(UserCard, {user})
+            liba.create(UserCard, {user: user1}),
+            liba.create(UserCard, {user: user2}),
         ]
     });
 
