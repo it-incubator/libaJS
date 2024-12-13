@@ -1,33 +1,35 @@
-import {createHtmlElement} from "./utils/create-html-element.ts";
+import {createHtmlElement, setAttribute} from "./utils/create-html-element.ts";
 import { Liba } from "../../src/liba2/Liba";
 
-Liba.onFiberTreeChanged = (rootElement, patchesTree) => {
-    patch(rootElement, patchesTree)
+Liba.onFiberTreeChanged = (prevFiber, newFiber, patchesTree) => {
+    patch(prevFiber, newFiber, patchesTree)
 }
 
-function patch(parent, patchObj, index = 0) {
+function patch(prevFiber, newFiber,  patchObj, index = 0) {
     if (!patchObj) return;
 
-    const el = parent.childNodes[index];
-
+    let el;
+    if (patchObj.type === 'UPDATE' || patchObj.type === 'TEXT') {
+        el = prevFiber.element;
+        newFiber.element = prevFiber.element;
+    }
     switch (patchObj.type) {
         case 'CREATE': {
-            const newEl = createHtmlElement(patchObj.newVNode);
-            parent.appendChild(newEl);
+            renderFiberNode(patchObj.newVNode, prevFiber.element)
             break;
         }
         case 'REMOVE': {
             if (el) {
-                parent.removeChild(el);
+                el.removeChild(el);
             }
             break;
         }
         case 'REPLACE': {
             const newEl = createHtmlElement(patchObj.newVNode);
             if (el) {
-                parent.replaceChild(newEl, el);
+                el.replaceChild(newEl, el);
             } else {
-                parent.appendChild(newEl);
+                el.appendChild(newEl);
             }
             break;
         }
@@ -42,15 +44,20 @@ function patch(parent, patchObj, index = 0) {
                 const { props, children } = patchObj;
 
                 props.forEach(({ key, value }) => {
-                    if (value === undefined) {
-                        el.removeAttribute(key);
-                    } else {
-                        el[key] = value;
-                    }
+                    setAttribute(el, key, value)
                 });
 
                 children.forEach((childPatch, i) => {
-                    patch(el, childPatch, i);
+                    if (childPatch == null) return;
+
+                    if (childPatch.type === 'TEXT') {
+                        patch(prevFiber, newFiber, childPatch, i);
+                    } else if  (childPatch.type === 'CREATE') {
+                        patch(prevFiber, newFiber.children[i], childPatch, i);
+                    }
+                    else {
+                        patch(prevFiber.children[i], newFiber.children[i], childPatch, i);
+                    }
                 });
             }
             break;

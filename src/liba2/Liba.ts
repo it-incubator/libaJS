@@ -50,7 +50,7 @@ export const Liba: any = {
 
                         //    fiberNode.children[0].element.remove();
                          //   fiberNode.children[0] = newFiberVersion;
-                            Liba.onFiberTreeChanged(fiberNode.children[0].element, patchTree)
+                            Liba.onFiberTreeChanged(fiberNode.children[0], newFiberVersion, patchTree)
                             fiberNode.children[0] = newFiberVersion;
                         })
 
