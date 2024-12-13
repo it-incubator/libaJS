@@ -21,8 +21,8 @@ export class FiberNode {
 
         this.element = null
         this.parentElement = null;
-
-        this.props = props as any
+        const {children, ...restProps} =  props
+        this.props = restProps as any
         this.type = ComponentFunctionOrTagName as any
         this.children = []
     }
@@ -30,4 +30,9 @@ export class FiberNode {
     pushState(stateWrapperWithSetter: StateWrapperWithSetter<any>) {
         this.stateNode.push(stateWrapperWithSetter)
     }
+
+    static isPrimitive(fiberNode: any) {
+         return typeof fiberNode ==='string' || typeof fiberNode === 'number'
+    }
 }
+

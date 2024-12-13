@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My React from Scratch</title>
+</head>
+
+<body>
+<script>
+    debugger;
+    // Stateful logic with hooks
+    let currentComponent = null;
+
+    function useState(initialValue) {
+        if (!currentComponent) {
+            throw new Error('useState must be called within a component');
+        }
+
+        const stateIndex = currentComponent.stateIndex;
+        if (!currentComponent.state[stateIndex]) {
+            currentComponent.state[stateIndex] = [
+                initialValue,
+                (value) => {
+                    currentComponent.state[stateIndex][0] = value;
+                    currentComponent.render();
+                },
+            ];
+        }
+
+        const stateTuple = currentComponent.state[stateIndex];
+        currentComponent.stateIndex++;
+
+        return [stateTuple[0], stateTuple[1]];
+    }
+
+    function createComponent(renderFn) {
+        return function Component() {
+            currentComponent = {
+                state: [],
+                stateIndex: 0,
+                renderFn: renderFn,
+                render: function () {
+                    this.stateIndex = 0; // Reset index on each render
+                    const newVNode = this.renderFn();
+                    const rootElement = document.getElementById('root') || document.body;
+
+                    if (!this.vnode) {
+                        // Initial render
+                        this.vnode = newVNode;
+                        rootElement.appendChild(createElement(newVNode));
+                    } else {
+                        const patches = diff(this.vnode, newVNode);
+                        patch(rootElement, patches);
+                        this.vnode = newVNode;
+                    }
+                },
+            };
+
+            currentComponent.render();
+            return currentComponent;
+        };
+    }
+
+    function h(tag, props, ...children) {
+        return {tag, props, children};
+    }
+
+    function createElement(vnode) {
+        if (typeof vnode === 'string') {
+            return document.createTextNode(vnode);
+        }
+
+        const {tag, props, children} = vnode;
+        const element = document.createElement(tag);
+
+        for (let key in props) {
+            element[key] = props[key];
+        }
+
+        children.forEach(child => element.appendChild(createElement(child)));
+
+        return element;
+    }
+
+    function diff(oldVNode, newVNode) {
+        if (!oldVNode) {
+            return {type: 'CREATE', newVNode};
+        }
+        if (!newVNode) {
+            return {type: 'REMOVE'};
+        }
+        if (typeof oldVNode !== typeof newVNode || oldVNode.tag !== newVNode.tag) {
+            return {type: 'REPLACE', newVNode};
+        }
+        if (typeof newVNode === 'string') {
+            if (oldVNode !== newVNode) {
+                return {type: 'TEXT', newVNode};
+            } else {
+                return null;
+            }
+        }
+
+        const patch = {
+            type: 'UPDATE',
+            props: diffProps(oldVNode.props, newVNode.props),
+            children: diffChildren(oldVNode.children, newVNode.children),
+        };
+        return patch;
+    }
+
+    function diffProps(oldProps, newProps) {
+        const patches = [];
+
+        for (let key in newProps) {
+            if (newProps[key] !== oldProps[key]) {
+                patches.push({key, value: newProps[key]});
+            }
+        }
+
+        for (let key in oldProps) {
+            if (!(key in newProps)) {
+                patches.push({key, value: undefined});
+            }
+        }
+
+        return patches;
+    }
+
+    function diffChildren(oldChildren, newChildren) {
+        const patches = [];
+        const maxLen = Math.max(oldChildren.length, newChildren.length);
+
+        for (let i = 0; i < maxLen; i++) {
+            patches.push(diff(oldChildren[i], newChildren[i]));
+        }
+
+        return patches;
+    }
+
+    function patch(parent, patchObj, index = 0) {
+        if (!patchObj) return;
+
+        const el = parent.childNodes[index];
+
+        switch (patchObj.type) {
+            case 'CREATE': {
+                const newEl = createElement(patchObj.newVNode);
+                parent.appendChild(newEl);
+                break;
+            }
+            case 'REMOVE': {
+                if (el) {
+                    parent.removeChild(el);
+                }
+                break;
+            }
+            case 'REPLACE': {
+                const newEl = createElement(patchObj.newVNode);
+                if (el) {
+                    parent.replaceChild(newEl, el);
+                } else {
+                    parent.appendChild(newEl);
+                }
+                break;
+            }
+            case 'TEXT': {
+                if (el) {
+                    el.textContent = patchObj.newVNode;
+                }
+                break;
+            }
+            case 'UPDATE': {
+                if (el) {
+                    const {props, children} = patchObj;
+
+                    props.forEach(({key, value}) => {
+                        if (value === undefined) {
+                            el.removeAttribute(key);
+                        } else {
+                            el[key] = value;
+                        }
+                    });
+
+                    children.forEach((childPatch, i) => {
+                        patch(el, childPatch, i);
+                    });
+                }
+                break;
+            }
+        }
+    }
+
+    const MyComponent = createComponent(function () {
+        const [count, setCount] = useState(0);
+
+        function increment() {
+            setCount(count + 1);
+        }
+
+        function decrement() {
+            setCount(count - 1);
+        }
+
+        return h('div', {className: 'my-component'},
+            h('div', {className: 'container'},
+                h('p', {className: 'message'}, `Count: ${count}`),
+                h('div', {className: 'buttons'},
+                    h('button', {onclick: () => increment()}, 'Increment'),
+                    h('button', {onclick: () => decrement()}, 'Decrease')
+                )
+            )
+        );
+    });
+
+    // Create an initial root element
+    const root = document.createElement('div');
+    root.id = 'root';
+    document.body.appendChild(root);
+
+    // Initialize App
+    const App = MyComponent();
+    App.render();
+
+    // Add CSS styling scoped to the component
+    const style = document.createElement('style');
+    style.textContent = `
+          .my-component {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f0f0f0;
+          }
+          .my-component .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .my-component .message {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          .my-component .buttons button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+          }
+          .my-component .buttons button:hover {
+            background: #ddd;
+          }
+          .my-component .buttons button:active {
+            background: #ccc;
+          }
+        `;
+
+    document.head.appendChild(style);
+
+</script>
+</body>
+
+</html>

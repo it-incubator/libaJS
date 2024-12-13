@@ -1,5 +1,5 @@
 export const reconsilation = (oldVNode, newVNode) => {
-    if (!oldVNode) {
+    if (oldVNode == null) {
         return { type: 'CREATE', newVNode };
     }
     if (!newVNode) {
@@ -8,7 +8,7 @@ export const reconsilation = (oldVNode, newVNode) => {
     if (typeof oldVNode !== typeof newVNode || oldVNode.tag !== newVNode.tag) {
         return { type: 'REPLACE', newVNode };
     }
-    if (typeof newVNode === 'string') {
+    if (typeof newVNode === 'string' || typeof newVNode === 'number') {
         if (oldVNode !== newVNode) {
             return { type: 'TEXT', newVNode };
         } else {

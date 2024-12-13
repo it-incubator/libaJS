@@ -1,33 +1,36 @@
-import {createHtmlElement} from "./utils/create-html-element.ts";
+import {createHtmlElement, setAttribute} from "./utils/create-html-element.ts";
 import { Liba } from "../../src/liba2/Liba";
+import {FiberNode} from "./utils/create-fiber-node.ts";
 
-Liba.onFiberTreeChanged = (rootElement, patchesTree) => {
-    patch(rootElement, patchesTree)
+
+Liba.onFiberTreeChanged = (newFiberNode, prevFiberNode, patchesTree) => {
+    patch(newFiberNode, prevFiberNode, patchesTree)
 }
 
-function patch(parent, patchObj, index = 0) {
+function patch(newFiberNode, prevFiberNode, patchObj, index = 0) {
     if (!patchObj) return;
 
-    const el = parent.childNodes[index];
+    const el = prevFiberNode.element;
+    newFiberNode.element = prevFiberNode.element;
 
     switch (patchObj.type) {
         case 'CREATE': {
             const newEl = createHtmlElement(patchObj.newVNode);
-            parent.appendChild(newEl);
+            newFiberNode.element.appendChild(newEl);
             break;
         }
         case 'REMOVE': {
             if (el) {
-                parent.removeChild(el);
+                newFiberNode.element.removeChild(el);
             }
             break;
         }
         case 'REPLACE': {
             const newEl = createHtmlElement(patchObj.newVNode);
             if (el) {
-                parent.replaceChild(newEl, el);
+                newFiberNode.element.replaceChild(newEl, el);
             } else {
-                parent.appendChild(newEl);
+                newFiberNode.element.appendChild(newEl);
             }
             break;
         }
@@ -45,12 +48,17 @@ function patch(parent, patchObj, index = 0) {
                     if (value === undefined) {
                         el.removeAttribute(key);
                     } else {
-                        el[key] = value;
+                        setAttribute(el, key, value);
                     }
                 });
 
                 children.forEach((childPatch, i) => {
-                    patch(el, childPatch, i);
+                    if (FiberNode.isPrimitive(newFiberNode.children[i])) {
+                        patch(newFiberNode, prevFiberNode, childPatch, i);
+                    } else {
+                        patch(newFiberNode.children[i], prevFiberNode.children[i], childPatch, i);
+                    }
+
                 });
             }
             break;

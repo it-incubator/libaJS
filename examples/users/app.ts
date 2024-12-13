@@ -17,13 +17,13 @@ export function App(_, {liba}: any) {
                     setCount((prev: number) => prev + 1)
                 }
             }),
-            liba.create('section', {
-                children: [  liba.create('button', {
-                    children: ['Удалить пользователей']
-                })]
-            }),
-            liba.create(UserCard, {user: user1}),
-            liba.create(UserCard, {user: user2}),
+            // liba.create('section', {
+            //     children: [  liba.create('button', {
+            //         children: ['Удалить пользователей']
+            //     })]
+            // }),
+            //liba.create(UserCard, {user: user1}),
+           // liba.create(UserCard, {user: user2}),
         ]
     });
 
