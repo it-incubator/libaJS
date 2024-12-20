@@ -1,16 +1,16 @@
-export const reconsilation = (oldVNode, newVNode) => {
-    if (oldVNode == null) {
-        return { type: 'CREATE', newVNode };
+export const reconsilation = (oldFiber, newFiber) => {
+    if (oldFiber == null) {
+        return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber.type };
     }
-    if (!newVNode) {
-        return { type: 'REMOVE' };
+    if (!newFiber) {
+        return { type: 'REMOVE', oldFiberType: oldFiber.type };
     }
-    if (typeof oldVNode !== typeof newVNode || oldVNode.tag !== newVNode.tag) {
-        return { type: 'REPLACE', newVNode };
+    if (typeof oldFiber !== typeof newFiber || oldFiber.type !== newFiber.type) {
+        return { type: 'REPLACE', newVNode: newFiber, newFiberType: newFiber.type, oldFiberType: oldFiber.type   };
     }
-    if (typeof newVNode === 'string' || typeof newVNode === 'number') {
-        if (oldVNode !== newVNode) {
-            return { type: 'TEXT', newVNode };
+    if (typeof newFiber === 'string' || typeof newFiber === 'number') {
+        if (oldFiber !== newFiber) {
+            return { type: 'TEXT', newVNode: newFiber, newFiberType: typeof newFiber };
         } else {
             return null;
         }
@@ -18,8 +18,10 @@ export const reconsilation = (oldVNode, newVNode) => {
 
     const patch = {
         type: 'UPDATE',
-        props: diffProps(oldVNode.props, newVNode.props),
-        children: diffChildren(oldVNode.children, newVNode.children),
+        props: diffProps(oldFiber.props, newFiber.props),
+        children: diffChildren(oldFiber.children, newFiber.children),
+        newFiberType: newFiber.type,
+        oldFiberType: oldFiber.type
     };
     return patch;
 }

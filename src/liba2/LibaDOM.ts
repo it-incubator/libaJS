@@ -25,12 +25,8 @@ function patch(prevFiber, newFiber,  patchObj, index = 0) {
             break;
         }
         case 'REPLACE': {
-            const newEl = createHtmlElement(patchObj.newVNode);
-            if (el) {
-                el.replaceChild(newEl, el);
-            } else {
-                el.appendChild(newEl);
-            }
+            const element = renderFiberNode(patchObj.newVNode, null)
+             prevFiber.parentElement.replaceChild(element, prevFiber.element);
             break;
         }
         case 'TEXT': {
@@ -82,7 +78,7 @@ export function renderFiberNode(fiberNode: any, parentElement: any) {
     // если это псевдофайбер - тупой текстовый узел..
     // то просто всятавить в родителя
     if (['string', 'number'].some(v => v === typeof fiberNode)) {
-        parentElement.append(fiberNode)
+        parentElement?.append(fiberNode)
         return;
     }
     // если это html тэг - создать элемент и в родителя вставить
@@ -90,7 +86,7 @@ export function renderFiberNode(fiberNode: any, parentElement: any) {
         element = createHtmlElement(fiberNode.virtualNode.type, fiberNode.props)
         fiberNode.element = element;
         fiberNode.parentElement = parentElement
-        parentElement.append(element)
+        parentElement?.append(element)
     } else {
         // если это не тег - значит какой-то компонент, который
         // по сути не надо рисовать.. нечего там рисовать.
@@ -102,4 +98,6 @@ export function renderFiberNode(fiberNode: any, parentElement: any) {
     }
 
     fiberNode.children?.forEach((child: any) => renderFiberNode(child, element))
+
+    return element;
 }

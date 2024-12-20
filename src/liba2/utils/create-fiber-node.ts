@@ -12,6 +12,10 @@ export class FiberNode {
      // сколько раз ueState вызывается в компоненте, столько будет здесь элементов
      stateNode: StateWrapperWithSetter<any>[] = []
      rendersCount = 0
+    /**
+     * текущий индекс вызова функции useState в текущем рендере
+     */
+     currentStateIndex = 0
 
 
     constructor(
@@ -29,5 +33,13 @@ export class FiberNode {
 
     pushState(stateWrapperWithSetter: StateWrapperWithSetter<any>) {
         this.stateNode.push(stateWrapperWithSetter)
+    }
+    getState(){
+        const state = [this.stateNode[this.currentStateIndex][0].value, this.stateNode[this.currentStateIndex][1]];
+        this.currentStateIndex++;
+        return state;
+    }
+    resetStateIndex() {
+        this.currentStateIndex = 0;
     }
 }

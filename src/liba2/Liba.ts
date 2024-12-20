@@ -37,19 +37,17 @@ export const Liba: any = {
                     return Liba.create(childComponentFunctionOrTag, props, {parentFiber: fiberNode})
                 },
                 useState<T>(initialValue: T) {
-                    if (fiberNode.rendersCount !== 0) {
-                        return  [fiberNode.stateNode[0][0].value, fiberNode.stateNode[0][1]];
-                    } else {
+                    if (fiberNode.rendersCount === 0) {
                         const [wrapper, setValue] = useState(initialValue, () => {
                             const newFiberVersion = ComponentFunctionOrTagName(fiberNode.props, {
                                 liba: renderLiba
                             })
                             fiberNode.rendersCount++;
-
+                            fiberNode.resetStateIndex();
                             const patchTree = reconsilation(fiberNode.children[0], newFiberVersion)
 
-                        //    fiberNode.children[0].element.remove();
-                         //   fiberNode.children[0] = newFiberVersion;
+                            //    fiberNode.children[0].element.remove();
+                            //   fiberNode.children[0] = newFiberVersion;
                             Liba.onFiberTreeChanged(fiberNode.children[0], newFiberVersion, patchTree)
                             fiberNode.children[0] = newFiberVersion;
                         })
@@ -57,9 +55,9 @@ export const Liba: any = {
                         fiberNode.pushState([wrapper, setValue]);
 
                         return [wrapper.value, setValue]
+                    } else {
+                        return fiberNode.getState();
                     }
-
-
                 }
             }
 
@@ -68,6 +66,7 @@ export const Liba: any = {
             const rootChildFiber = ComponentFunctionOrTagName(props, {
                 liba: renderLiba
             })
+
             //rootChildFiber.virtualNode = createVirtualNode(fiberNode);
 
             fiberNode.rendersCount++;
