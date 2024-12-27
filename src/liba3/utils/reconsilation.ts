@@ -1,6 +1,8 @@
-export const reconsilation = (oldFiber, newFiber) => {
+import {FiberNode} from "./create-fiber-node.ts";
+
+export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: FiberNode | string | number) => {
     if (oldFiber === undefined) {
-        return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber.type };
+        return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber?.type };
     }
     if (!newFiber) {
         return { type: 'REMOVE', oldFiberType: oldFiber.type };
