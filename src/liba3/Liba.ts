@@ -51,7 +51,8 @@ export const Liba: any = {
                                 liba: renderLiba
                             })
                             fiberNode.rendersCount++;
-                            fiberNode.resetStateIndex();
+                            fiberNode.resetStateIndex(); // why we reset stateIndex?
+
                             const patchTree = reconsilation(fiberNode.child, newFiberVersion)
 
                             //    fiberNode.children[0].element.remove();

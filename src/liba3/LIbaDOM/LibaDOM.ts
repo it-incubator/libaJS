@@ -6,7 +6,7 @@ Liba.onFiberTreeChanged = (prevFiber, newFiber, patchesTree) => {
     patch(prevFiber, newFiber, patchesTree)
 }
 
-function patch(prevFiber, newFiber,  patchObj, index = 0) {
+function patch(prevFiber, newFiber,  patchObj) {
     if (!patchObj) return;
 
     let el;
@@ -38,24 +38,33 @@ function patch(prevFiber, newFiber,  patchObj, index = 0) {
         }
         case 'UPDATE': {
             if (el) {
-                const { props, children } = patchObj;
+                const { props, child: childPatch, sibling: siblingPatch } = patchObj;
 
                 props.forEach(({ key, value }) => {
                     setAttribute(el, key, value)
                 });
 
-                children.forEach((childPatch, i) => {
-                    if (childPatch == null) return;
-
+                if (childPatch != null)  {
                     if (childPatch.type === 'TEXT') {
-                        patch(prevFiber, newFiber, childPatch, i);
+                        patch(prevFiber, newFiber, childPatch);
                     } else if  (childPatch.type === 'CREATE') {
-                        patch(prevFiber, newFiber.children[i], childPatch, i);
+                        patch(prevFiber, newFiber.child, childPatch);
                     }
                     else {
-                        patch(prevFiber.children[i], newFiber.children[i], childPatch, i);
+                        patch(prevFiber.child, newFiber.child, childPatch);
                     }
-                });
+                }
+
+
+                if (siblingPatch != null) {
+                    if (siblingPatch.type === 'TEXT') {
+                        patch(prevFiber, newFiber, siblingPatch);
+                    } else if (siblingPatch.type === 'CREATE') {
+                        patch(prevFiber, newFiber.sibling, siblingPatch);
+                    } else {
+                        patch(prevFiber.child.sibling, newFiber.child.sibling, siblingPatch);
+                    }
+                }
             }
             break;
         }

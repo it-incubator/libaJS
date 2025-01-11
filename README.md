@@ -34,8 +34,12 @@ https://chatgpt.com/share/2813fe42-b11b-476e-a7ff-7c62c78e6a39
 - ✅ создавать корневой элемент в методе render 
 
 - ✅ если между рендерами кол-во вызовов хуков меняется - генерировать ошибку (hackertask)
+- 🟩 🔥🔥🔥🔥🔥🔥 create fiber visualization in canvas;  https://chatgpt.com/share/6782b413-0ce8-8006-b1b8-005d63140495
+- 🟩 🔥🔥🔥 create simple examples with fiber visualization; 
 - 🟩 🔥 reconsilation (keep patch-tree old structure) 
 - 🟩 🔥 patching adapate to new fiber tree structure
+- 🟩 🔥 Add User Button must work 
+- 🟩 🔥 go inside REACT
 - 🟩 delete renderLiba
 - 🟩 добавить в useEffect массив зависимостей (hackertask)
 - app.ts

@@ -1,6 +1,8 @@
 import {FiberNode} from "./create-fiber-node.ts";
 
 export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: FiberNode | string | number) => {
+    if (!oldFiber && !newFiber) return null;
+
     if (oldFiber === undefined) {
         return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber?.type };
     }
@@ -21,10 +23,14 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
     const patch = {
         type: 'UPDATE',
         props: diffProps(oldFiber.props, newFiber.props),
-        children: diffChildren(oldFiber.children, newFiber.children),
+        sibling: null,
+        parent: null,
         newFiberType: newFiber.type,
         oldFiberType: oldFiber.type
     };
+
+    diffChildren(oldFiber.child, newFiber.child, patch);
+
     return patch;
 }
 
@@ -46,13 +52,13 @@ function diffProps(oldProps, newProps) {
     return patches;
 }
 
-function diffChildren(oldChildren, newChildren) {
-    const patches = [];
-    const maxLen = Math.max(oldChildren.length, newChildren.length);
-
-    for (let i = 0; i < maxLen; i++) {
-        patches.push(reconsilation(oldChildren[i], newChildren[i]));
+function diffChildren(oldChild, newChild, patch) {
+    if (oldChild || newChild) {
+        patch.child = reconsilation(oldChild, newChild);
     }
 
-    return patches;
+    let oldChildSibling = oldChild.sibling;
+    let newChildSibling = newChild.sibling;
+
+    patch.sibling = reconsilation(oldChildSibling, newChildSibling);
 }
