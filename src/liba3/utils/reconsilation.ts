@@ -3,7 +3,7 @@ import {FiberNode} from "./create-fiber-node.ts";
 export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: FiberNode | string | number) => {
     if (!oldFiber && !newFiber) return null;
 
-    if (oldFiber === undefined) {
+    if (oldFiber === undefined || oldFiber === null) {
         return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber?.type };
     }
     if (!newFiber) {
@@ -30,6 +30,7 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
     };
 
     diffChildren(oldFiber.child, newFiber.child, patch);
+    diffSibling(oldFiber.sibling, newFiber.sibling, patch);
 
     return patch;
 }
@@ -57,8 +58,19 @@ function diffChildren(oldChild, newChild, patch) {
         patch.child = reconsilation(oldChild, newChild);
     }
 
-    let oldChildSibling = oldChild.sibling;
-    let newChildSibling = newChild.sibling;
+    // let oldChildSibling = oldChild.sibling;
+    // let newChildSibling = newChild.sibling;
 
-    patch.sibling = reconsilation(oldChildSibling, newChildSibling);
+    // patch.sibling = reconsilation(oldChildSibling, newChildSibling);
+}
+
+function diffSibling(oldSibling, newSibling, patch) {
+    if (oldSibling || newSibling) {
+        patch.sibling = reconsilation(oldSibling, newSibling);
+    }
+
+    // let oldChildSibling = oldChild.sibling;
+    // let newChildSibling = newChild.sibling;
+
+    // patch.sibling = reconsilation(oldChildSibling, newChildSibling);
 }
