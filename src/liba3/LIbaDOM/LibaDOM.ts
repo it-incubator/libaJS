@@ -1,9 +1,16 @@
 import {setAttribute} from "../utils/create-html-element.ts";
 import {Liba} from "../Liba.ts";
 import {renderFiberNode} from "./utils/RenderFiberNode.ts";
+import {createFiberCanvasRenderer} from "../../shared/renderCanvasFiberTree.ts";
+import {createPatchCanvasRenderer} from "../../shared/renderCanvasPatchTree.ts";
 
 Liba.onFiberTreeChanged = (prevFiber, newFiber, patchesTree) => {
+    createFiberCanvasRenderer()(newFiber, "newFiberNode");
+    createFiberCanvasRenderer()(prevFiber, "prevFiberNode");
+    createPatchCanvasRenderer()(patchesTree, "patchTree");
+    window.patchesTree = patchesTree;
     patch(prevFiber, newFiber, patchesTree)
+    createFiberCanvasRenderer()(fiberNode, "currentFullTree");
 }
 
 function patch(prevFiber, newFiber,  patchObj) {

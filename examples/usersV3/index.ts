@@ -1,12 +1,15 @@
 import { App } from "./app";
 import { Liba } from "../../src/liba3/Liba";
 import { LibaDOM } from "../../src/liba3/LIbaDOM/LibaDOM";
-import { renderCanvasFiberTree } from "../../src/shared/renderCanvasFiberTree";
+import { createFiberCanvasRenderer } from "../../src/shared/renderCanvasFiberTree";
 
 const rootElement = LibaDOM.createRoot(document.getElementById('root'))
 
 const fiberNode = Liba.create(App);
-renderCanvasFiberTree(fiberNode);
+createFiberCanvasRenderer()(fiberNode, "currentFullTree");
+//createCanvasRenderer()(fiberNode, "newFiberNode");
+//createCanvasRenderer()(fiberNode, "prevFiberNode");
+//createCanvasRenderer()(fiberNode, "patchTree");
 
 // @ts-ignore
 window.fiberNode = fiberNode;

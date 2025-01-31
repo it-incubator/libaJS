@@ -1,7 +1,7 @@
 import {FiberNode} from "./create-fiber-node.ts";
 
 export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: FiberNode | string | number) => {
-    if (!oldFiber && !newFiber) return null;
+    if (!oldFiber && !newFiber) return undefined;
 
     if (oldFiber === undefined) {
         return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber?.type };
@@ -23,7 +23,8 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
     const patch = {
         type: 'UPDATE',
         props: diffProps(oldFiber.props, newFiber.props),
-        sibling: null,
+        sibling: undefined,
+        child: undefined,
         parent: null,
         newFiberType: newFiber.type,
         oldFiberType: oldFiber.type

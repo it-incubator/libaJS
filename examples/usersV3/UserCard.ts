@@ -5,15 +5,17 @@ export function UserCard(props, { liba }) {
 
   const [count, setCount] = liba.useState(0)
 
-  const child =  liba.create('div', {
-    children: [user.name]
-  })
 
   return liba.create('div', {
     children: [
-        child,
+      liba.create('div', {
+        children: [user.name]
+      }),
+      liba.create('div', {
+        children: ['count: ' + count]
+      }),
       liba.create('button', {
-      children: ['button inside user: ' + count],
+      children: ['c: ' + count],
       onClick: () => {
         setCount((prev: number) => prev + 1)
       }

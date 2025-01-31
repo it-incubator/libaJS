@@ -39,13 +39,13 @@ export function App(_, {liba}: any) {
           //  users.length === 2 ? liba.create('h1', {children: ['LENGTH === 2']}) : liba.create('h3', {children: ['LENGTH > 2']}),
            // users.length === 2 ? null : liba.create('h3', {children: ['LENGTH > 2']}),
 
-            liba.create('button', { // todo:  окгда у нас в качестве эелмеента null... нужно тот кейс отработать...
-                children: ['Add new user'],
-                onClick: () => {
-                    setUsers([...users, {id: Date.now(), name: 'name new'}])
-                }
-            }),
-            liba.create('hr')
+            // liba.create('button', { // todo:  окгда у нас в качестве эелмеента null... нужно тот кейс отработать...
+            //     children: ['Add new user'],
+            //     onClick: () => {
+            //         setUsers([...users, {id: Date.now(), name: 'name new'}])
+            //     }
+            // }),
+            // liba.create('hr')
         ]
     });
 
