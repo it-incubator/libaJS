@@ -22,7 +22,7 @@ export class FiberNode {
 
 
     constructor(
-        ComponentFunctionOrTagName: any, props: any) {
+        ComponentFunctionOrTagName: any, props: any, defaultFiberNodeFields?: any) {
         this.status = 'created'
         this.cleanups = []
 
@@ -32,6 +32,14 @@ export class FiberNode {
         this.props = restProps as any
         this.type = ComponentFunctionOrTagName as any
         this.children = []
+
+        if (defaultFiberNodeFields?.stateNode) {
+            this.stateNode = defaultFiberNodeFields.stateNode;
+        }
+
+        if (defaultFiberNodeFields?.rendersCount) {
+            this.rendersCount = defaultFiberNodeFields.rendersCount;
+        }
     }
 
     pushState(stateWrapperWithSetter: StateWrapperWithSetter<any>) {

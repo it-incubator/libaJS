@@ -31,5 +31,5 @@ export function createChildren<
         }
     }
 
-    return Liba.create(ChildrenComponentFunction, props, {parent: componentInstance, key: key})
+    return Liba.create(ChildrenComponentFunction, props)
 }
