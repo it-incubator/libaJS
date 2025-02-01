@@ -12,6 +12,6 @@ createFiberCanvasRenderer()(fiberNode, "currentFullTree");
 //createCanvasRenderer()(fiberNode, "patchTree");
 
 // @ts-ignore
-window.fiberNode = fiberNode;
+window.windowFiberNode = fiberNode;
 
 rootElement.render(fiberNode)

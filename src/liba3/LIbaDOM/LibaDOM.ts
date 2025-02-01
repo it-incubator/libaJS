@@ -10,7 +10,7 @@ Liba.onFiberTreeChanged = (prevFiber, newFiber, patchesTree) => {
     createPatchCanvasRenderer()(patchesTree, "patchTree");
     window.patchesTree = patchesTree;
     patch(prevFiber, newFiber, patchesTree)
-    createFiberCanvasRenderer()(fiberNode, "currentFullTree");
+    createFiberCanvasRenderer()(windowFiberNode, "currentFullTree");
 }
 
 function patch(prevFiber, newFiber,  patchObj) {
@@ -21,9 +21,10 @@ function patch(prevFiber, newFiber,  patchObj) {
         el = prevFiber.element;
         newFiber.element = prevFiber.element;
     }
+
     switch (patchObj.type) {
         case 'CREATE': {
-            renderFiberNode(patchObj.newVNode, prevFiber.element)
+            renderFiberNode(patchObj.newVNode, prevFiber.parentElement)
             break;
         }
         case 'REMOVE': {
@@ -44,7 +45,7 @@ function patch(prevFiber, newFiber,  patchObj) {
             break;
         }
         case 'UPDATE': {
-            if (el) {
+            // if (el) {
                 const { props, child: childPatch, sibling: siblingPatch } = patchObj;
 
                 props.forEach(({ key, value }) => {
@@ -69,10 +70,10 @@ function patch(prevFiber, newFiber,  patchObj) {
                     } else if (siblingPatch.type === 'CREATE') {
                         patch(prevFiber, newFiber.sibling, siblingPatch);
                     } else {
-                        patch(prevFiber.child.sibling, newFiber.child.sibling, siblingPatch);
+                        patch(prevFiber.sibling, newFiber.sibling, siblingPatch);
                     }
                 }
-            }
+            // }
             break;
         }
     }
