@@ -31,6 +31,7 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
     };
 
     diffChildren(oldFiber.child, newFiber.child, patch);
+    diffSibling(oldFiber.sibling, newFiber.sibling, patch);
 
     return patch;
 }
@@ -57,9 +58,10 @@ function diffChildren(oldChild, newChild, patch) {
     if (oldChild || newChild) {
         patch.child = reconsilation(oldChild, newChild);
     }
+}
 
-    let oldChildSibling = oldChild.sibling;
-    let newChildSibling = newChild.sibling;
-
-    patch.sibling = reconsilation(oldChildSibling, newChildSibling);
+function diffSibling(oldSibling, newSibling, patch) {
+    if (oldSibling || newSibling) {
+        patch.sibling = reconsilation(oldSibling, newSibling);
+    }
 }

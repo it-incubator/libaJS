@@ -4,7 +4,7 @@
 export const createPatchCanvasRenderer = () => {
 
   const settings =  {
-    renderNullNodes: false
+    renderNullNodes: true,
   }
 
 
