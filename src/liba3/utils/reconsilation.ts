@@ -3,7 +3,7 @@ import {FiberNode} from "./create-fiber-node.ts";
 export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: FiberNode | string | number) => {
     if (!oldFiber && !newFiber) return undefined;
 
-    if (oldFiber === undefined) {
+    if (oldFiber === undefined || oldFiber === null) {
         return { type: 'CREATE', newVNode: newFiber, newFiberType: newFiber?.type };
     }
     if (!newFiber) {

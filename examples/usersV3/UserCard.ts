@@ -15,10 +15,11 @@ export function UserCard(props, { liba }) {
         children: ['count: ' + count]
       }),
       liba.create('button', {
-      children: ['c: ' + count],
-      onClick: () => {
-        setCount((prev: number) => prev + 1)
-      }
-    }),]
+        children: ['c: ' + count],
+        onClick: () => {
+          setCount((prev: number) => prev + 1)
+        }
+      }),
+    ]
   });
 }

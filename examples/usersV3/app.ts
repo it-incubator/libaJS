@@ -27,12 +27,12 @@ export function App(_, {liba}: any) {
             //         setUsers([...users, {id: Date.now(), name: 'name new'}])
             //     }
             // }),
-            // users.length === 3 ? liba.create('span', {children: ['LIMIT']}) : liba.create('button', {
-            //     children: ['Add new user'],
-            //     onClick: () => {
-            //         setUsers([...users, {id: Date.now(), name: 'name new'}])
-            //     }
-            // }),
+            liba.create('button', {
+                children: ['Add new user'],
+                onClick: () => {
+                    setUsers([...users, {id: Date.now(), name: 'name new'}])
+                }
+            }),
             //
             //
             //
@@ -45,7 +45,7 @@ export function App(_, {liba}: any) {
             //         setUsers([...users, {id: Date.now(), name: 'name new'}])
             //     }
             // }),
-            // liba.create('hr')
+            liba.create('hr')
         ]
     });
 
