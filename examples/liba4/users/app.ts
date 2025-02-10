@@ -8,7 +8,7 @@ export function App(_) {
 
   return Liba.create('div', {
       children: [
-        Liba.create("div", {children:  users.map(u => Liba.create(UserCard, {user: u}))}),
+        Liba.create("div", {children:  users.map(u => Liba.create(UserCard, {user: u, key: u.id}))}),
         Liba.create('button', {
           children: ['Add new user'],
           onClick: () => {

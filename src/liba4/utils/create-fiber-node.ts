@@ -45,4 +45,11 @@ export class FiberNode {
     resetStateIndex() {
         this.currentStateIndex = 0;
     }
+
+
+    copyStateToOtherFiber(otherFiber: FiberNode) {
+       // otherFiber.currentStateIndex = this.currentStateIndex;
+        otherFiber.rendersCount = this.rendersCount;
+        otherFiber.stateNode = this.stateNode;
+    }
 }

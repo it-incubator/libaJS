@@ -37,7 +37,7 @@ const rootElement = LibaDOM.createRoot(document.getElementById('root'))
 const fiberNode = Liba.create(App);
 createFiberCanvasRenderer()(fiberNode, "currentFullTree");
 
-console.log(checkChildParentEquality(fiberNode));
+//console.log(checkChildParentEquality(fiberNode));
 
 // @ts-ignore
 window.windowFiberNode = fiberNode;
