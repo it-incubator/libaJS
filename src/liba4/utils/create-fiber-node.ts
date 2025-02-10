@@ -12,6 +12,8 @@ export class FiberNode {
      sibling: FiberNode | null = null
      parent: FiberNode | null = null
 
+    alreadyCopiedToNewFiberVersion = false
+
      // сколько раз ueState вызывается в компоненте, столько будет здесь элементов
      stateNode: StateWrapperWithSetter<any>[] = []
      rendersCount = 0

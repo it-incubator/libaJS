@@ -11,8 +11,9 @@ function copyStateFromExistingFiberToNew(changedFiber: FiberNode | null, targetF
     let current = changedFiber;
 
     while (current) {
-        if (current.type === targetFiber.type && current.props.key === targetFiber.props.key) {
+        if (!current.alreadyCopiedToNewFiberVersion && current.type === targetFiber.type && current.props.key === targetFiber.props.key) {
             current.copyStateToOtherFiber(targetFiber);
+            current.alreadyCopiedToNewFiberVersion = true;
             return true;
         }
 
