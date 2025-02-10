@@ -1,0 +1,13 @@
+@startuml
+actor User
+
+participant index.ts
+participant Liba
+participant FiberTree
+participant FiberNode
+participant LibaDom
+
+FiberNode -> Liba: .create(fiberNode)
+Liba -> FiberTree: .push(fiberNode)
+
+@enduml

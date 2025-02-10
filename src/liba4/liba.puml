@@ -1,0 +1,16 @@
+@startuml
+actor User
+
+participant index.ts
+participant LibaDOM
+participant Liba
+participant libaElement
+
+
+index.ts -> LibaDOM: .createRoot(rootHtmlElement)
+index.ts <-- LibaDOM: libaRoot
+index.ts -> Liba: .create(App)
+index.ts <-- Liba: fiberNode
+index.ts -> libaRoot: .render(fiberNode)
+
+@enduml

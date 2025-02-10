@@ -1,0 +1,36 @@
+@startuml
+actor User
+participant Liba
+participant renderC
+note over renderC: запускает компонент
+note over renderC: и присоединяет
+note over renderC: и element к instance
+participant App
+participant renderLiba
+participant createChildren
+note over createChildren: по сути брал из кеша инстансы,
+ note over createChildren: если уже рисовались
+participant UserCard
+
+User -> Liba: .create(App)
+ note over Liba: cInstance created
+Liba -> renderC: (cInstance)
+renderC -> App: (props, renderLiba)
+App -> renderLiba: .create('button')
+App <-- renderLiba: bElement
+App -> renderLiba: .create(UserCard)
+    renderLiba -> createChildren: (UserCard, props, AppCInstance, key)
+    createChildren -> Liba: create(UserCard, AppCInstance, props, key)
+    Liba -> renderC: (UserCInstance)
+    renderC -> UserCard: (props, renderLiba)
+    UserCard -> renderLiba: .create('div')
+    UserCard -> renderLiba: .create('div')
+    UserCard <-- renderLiba: element
+    UserCard --> renderC: element
+    note over renderC: instance.element = element
+
+
+
+
+
+@enduml

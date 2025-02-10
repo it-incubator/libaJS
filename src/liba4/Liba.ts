@@ -1,7 +1,6 @@
-import {FiberNode} from "./utils/create-fiber-node.ts";
-import {useState} from "./utils/use-state.ts";
-import {reconsilation} from "./utils/reconsilation.ts";
-
+import { FiberNode } from "./utils/create-fiber-node.ts";
+import { useState } from "./utils/use-state.ts";
+import { reconsilation } from "./utils/reconsilation.ts";
 
 // @ts-ignore
 window.rootFiber = null;
@@ -10,8 +9,11 @@ window.rootVirtualNode = null;
 
 export const Liba: any = {
     onFiberTreeChanged: () => {},
+    currentFiber: null,
     create(ComponentFunctionOrTagName, props: any = {}) {
-        const fiberNode = new FiberNode(ComponentFunctionOrTagName, props)
+        const fiberNode = new FiberNode(ComponentFunctionOrTagName, props);
+        this.currentFiber = fiberNode;
+
         // @ts-ignore
         if (window.rootFiber === null) {
             // @ts-ignore
@@ -19,7 +21,6 @@ export const Liba: any = {
             // @ts-ignore
             window.rootVirtualNode = fiberNode.virtualNode;
         }
-
 
         // если у текущего компонента есть дети (уже созданные ранее файберы)
         // нужно запушить в родительский файбер первого ребёнка, и сделать перелинковку братьям
@@ -59,18 +60,19 @@ export const Liba: any = {
         return fiberNode;
     },
     useState<T>(initialValue: T) {
+        const fiberNode = this.currentFiber;
+
         if (fiberNode.rendersCount === 0) {
             const [wrapper, setValue] = useState(initialValue, () => {
-                const newFiberVersion = ComponentFunctionOrTagName(fiberNode.props, {
-                    liba: renderLiba
-                })
+                this.currentFiber = fiberNode;
+                const newFiberVersion = fiberNode.type(fiberNode.props);
                 fiberNode.rendersCount++;
                 fiberNode.resetStateIndex(); // why we reset stateIndex?
 
                 const patchTree = reconsilation(fiberNode.child, newFiberVersion)
 
-                //    fiberNode.children[0].element.remove();
-                //   fiberNode.children[0] = newFiberVersion;
+                // fiberNode.children[0].element.remove();
+                // fiberNode.children[0] = newFiberVersion;
                 Liba.onFiberTreeChanged(fiberNode.child, newFiberVersion, patchTree)
                 fiberNode.child = newFiberVersion;
             })
