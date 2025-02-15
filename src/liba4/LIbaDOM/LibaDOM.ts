@@ -13,18 +13,24 @@ Liba.onFiberTreeChanged = (prevFiber, newFiber, patchesTree) => {
     createFiberCanvasRenderer()(windowFiberNode, "currentFullTree");
 }
 
-function patch(prevFiber, newFiber,  patchObj) {
+function patch(prevFiberOrParentFiberOrLeftSiblingFiber, newFiber,  patchObj, typeOfPrevFiber: 'similar' | 'parent' | 'left-sibling') {
     if (!patchObj) return;
 
     let el;
     if (patchObj.type === 'UPDATE' || patchObj.type === 'TEXT') {
-        el = prevFiber.element;
-        newFiber.element = prevFiber.element;
+        el = prevFiberOrParentFiberOrLeftSiblingFiber.element;
+        newFiber.element = prevFiberOrParentFiberOrLeftSiblingFiber.element;
     }
 
     switch (patchObj.type) {
         case 'CREATE': {
-            renderFiberNode(patchObj.newVNode, prevFiber.parentElement)
+            switch (typeOfPrevFiber) {
+                case 'parent':
+                    renderFiberNode(patchObj.newVNode, prevFiberOrParentFiberOrLeftSiblingFiber.element, 'after')
+                    break;
+                case 'left-sibling':
+            }
+
             break;
         }
         case 'REMOVE': {
@@ -35,7 +41,7 @@ function patch(prevFiber, newFiber,  patchObj) {
         }
         case 'REPLACE': {
             const element = renderFiberNode(patchObj.newVNode, null)
-             prevFiber.parentElement.replaceChild(element, prevFiber.element);
+             prevFiberOrParentFiberOrLeftSiblingFiber.parent.element.replaceChild(element, prevFiberOrParentFiberOrLeftSiblingFiber.element);
             break;
         }
         case 'TEXT': {
@@ -54,23 +60,23 @@ function patch(prevFiber, newFiber,  patchObj) {
 
                 if (childPatch != null)  {
                     if (childPatch.type === 'TEXT') {
-                        patch(prevFiber, newFiber, childPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber, newFiber, childPatch, 'similar');
                     } else if  (childPatch.type === 'CREATE') {
-                        patch(prevFiber, newFiber.child, childPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber,  newFiber.child, childPatch, 'parent');
                     }
                     else {
-                        patch(prevFiber.child, newFiber.child, childPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber.child, newFiber.child, childPatch, 'similar');
                     }
                 }
 
 
                 if (siblingPatch != null) {
                     if (siblingPatch.type === 'TEXT') {
-                        patch(prevFiber, newFiber, siblingPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber, newFiber, siblingPatch, 'similar');
                     } else if (siblingPatch.type === 'CREATE') {
-                        patch(prevFiber, newFiber.sibling, siblingPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber, newFiber.sibling, siblingPatch, 'left-sibling');
                     } else {
-                        patch(prevFiber.sibling, newFiber.sibling, siblingPatch);
+                        patch(prevFiberOrParentFiberOrLeftSiblingFiber.sibling, newFiber.sibling, siblingPatch, 'similar');
                     }
                 }
             // }

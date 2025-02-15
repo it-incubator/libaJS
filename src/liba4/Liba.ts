@@ -30,6 +30,9 @@ function copyStateFromExistingFiberToNew(changedFiber: FiberNode | null, targetF
 export const Liba: any = {
     onFiberTreeChanged: () => {},
     currentFiber: null,
+    /**
+     * файбер в котором изменился стейт и который вызвал каскад рендеров
+     */
     changedFiber: null,
     create(ComponentFunctionOrTagName, props: any = {}) {
         const fiberNode = new FiberNode(ComponentFunctionOrTagName, props);
@@ -66,6 +69,7 @@ export const Liba: any = {
         if (typeof ComponentFunctionOrTagName === 'function') {
 
             // перед тем как отрисовывать, нужно поискать уже существующий файбер чтобы скопировать его стейт.
+            // если то не первая отрисовка, а из-за изменёноо стейта
             if (this.changedFiber) {
                     copyStateFromExistingFiberToNew(this.changedFiber, fiberNode);
             }
