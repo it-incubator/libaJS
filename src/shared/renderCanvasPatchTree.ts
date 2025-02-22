@@ -48,7 +48,7 @@ export const createPatchCanvasRenderer = () => {
 
     if (!context) return;
 
-    canvas.width = 400;
+    canvas.width = 800;
     canvas.height = 2000;
 
     const rect = {
