@@ -10,7 +10,7 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
         return { type: 'REMOVE', oldFiberType: oldFiber.type };
     }
     if (oldFiber === null || typeof oldFiber !== typeof newFiber || oldFiber?.type !== newFiber.type) {
-        return { type: 'REPLACE', newVNode: newFiber, newFiberType: newFiber.type, oldFiberType: oldFiber?.type };
+        return { type: 'REPLACE', newVNode: newFiber, newFiberType: newFiber.type, oldFiberType: oldFiber?.type   };
     }
     if (typeof newFiber === 'string' || typeof newFiber === 'number') {
         if (oldFiber !== newFiber) {
@@ -30,17 +30,8 @@ export const reconsilation = (oldFiber: FiberNode | string | number, newFiber: F
         oldFiberType: oldFiber.type
     };
 
-    // Рекурсивная обработка детей с сохранением родительских связей
-    if (oldFiber.child || newFiber.child) {
-        patch.child = reconsilation(oldFiber.child, newFiber.child);
-        if (patch.child) patch.child.parent = newFiber;  // Сохраняем ссылку на родителя для дочерних элементов
-    }
-
-    // Рекурсивная обработка сиблингов с сохранением родительских связей
-    if (oldFiber.sibling || newFiber.sibling) {
-        patch.sibling = reconsilation(oldFiber.sibling, newFiber.sibling);
-        if (patch.sibling) patch.sibling.parent = newFiber;  // Сохраняем ссылку на родителя для сиблингов
-    }
+    diffChildren(oldFiber.child, newFiber.child, patch);
+    diffSibling(oldFiber.sibling, newFiber.sibling, patch);
 
     return patch;
 }
@@ -61,4 +52,16 @@ function diffProps(oldProps, newProps) {
     }
 
     return patches;
+}
+
+function diffChildren(oldChild, newChild, patch) {
+    if (oldChild || newChild) {
+        patch.child = reconsilation(oldChild, newChild);
+    }
+}
+
+function diffSibling(oldSibling, newSibling, patch) {
+    if (oldSibling || newSibling) {
+        patch.sibling = reconsilation(oldSibling, newSibling);
+    }
 }
