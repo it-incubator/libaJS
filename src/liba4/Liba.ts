@@ -82,6 +82,7 @@ export const Liba: any = {
 
             fiberNode.rendersCount++;
             fiberNode.child = rootChildFiber;
+            if (rootChildFiber) rootChildFiber.parent = fiberNode;
            // fiberNode.virtualNode.children.push(rootChildFiber.virtualNode)
 
             //const virtualNode = createVirtualNode(ComponentFunction, props)
