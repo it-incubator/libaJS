@@ -1,14 +1,14 @@
 import { Liba } from "../../../src/liba4/Liba";
 
 export function FormData() {
-  const [inpitData, setInputData] = Liba.useState('empty');
+  const [data, setData] = Liba.useState(100);
 
   return Liba.create('div', {
     children: [
-      Liba.create('input', {
-        value: inpitData,
-        onChange: (e) => {
-          setInputData(e.currentTarget.value);
+      Liba.create('button', {
+        children: [`${data}`],
+        onClick: () => {
+          setData(prev => prev + 100);
         }
       })
     ]
