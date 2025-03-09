@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../react.development.js"></script>
+    <script src="../react-dom.development.js"></script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+
+    <script>
+        const { useState } = React;
+
+        function Counter() {
+            const [count, setCount] = useState(0);
+
+            return React.createElement("div", null,
+                React.createElement("h1", null, `Count: ${count}`),
+                React.createElement("button", { onClick: () => setCount(count + 1) }, "Increment"),
+                React.createElement("button", { onClick: () => setCount(count - 1) }, "Decrement")
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(
+            React.createElement(Counter)
+        );
+    </script>
+</body>
+</html>
