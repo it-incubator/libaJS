@@ -71,18 +71,91 @@ export const createPatchCanvasRenderer = () => {
     updateYMargin();
 
     if (patch && patch.child !== undefined) {
-      renderCanvasFiberTreeChild(context, patch.child, rect.x + X_PADDING);
+      renderCanvasFiberNode(context, patch.child, rect.x + X_PADDING, null, 'child');
     }
 
     if (patch && patch.sibling !== undefined) {
-      renderCanvasFiberTreeSibling(context, patch.sibling, rect.x, rect.y);
+      renderCanvasFiberNode(context, patch.sibling, rect.x, rect.y, 'sibling');
     }
 
     //document.body.appendChild(canvas);
   };
 
-  const renderCanvasFiberTreeChild = (context: CanvasRenderingContext2D, patch: any, x: number) => {
+  // const renderCanvasFiberTreeChild = (context: CanvasRenderingContext2D, patch: any, x: number) => {
+  //   if (!settings.renderNullNodes && patch === null) return;
+  //
+  //   const rect = {
+  //     x,
+  //     y: y,
+  //     width: BLOCK_WIDTH,
+  //     height: BLOCK_HEIGHT,
+  //   };
+  //
+  //   context.fillStyle = 'white';
+  //   context.fillRect(rect.x, rect.y, rect.width, rect.height);
+  //
+  //   context.strokeStyle = 'black';
+  //   context.lineWidth = 2;
+  //   context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+  //
+  //   context.fillStyle = 'black';
+  //   context.fillText(getPatchNodeName(patch), rect.x + 10, rect.y + 15);
+  //
+  //   context.beginPath();
+  //   context.moveTo(rect.x, y + (rect.height / 2));
+  //   context.lineTo(rect.x - 8, y + (rect.height / 2));
+  //   context.lineTo(rect.x - 8, y + (rect.height / 2) - 20);
+  //   context.stroke();
+  //
+  //   updateYMargin();
+  //
+  //   if (patch && patch.child !== undefined) {
+  //     renderCanvasFiberTreeChild(context, patch.child, rect.x + X_PADDING);
+  //   }
+  //
+  //   if (patch && patch.sibling !== undefined) {
+  //     renderCanvasFiberTreeSibling(context, patch.sibling, rect.x, rect.y);
+  //   }
+  // };
 
+  // const renderCanvasFiberTreeSibling = (context: CanvasRenderingContext2D, patch: any, x: number, yParent: number) => {
+  //   if (!settings.renderNullNodes && patch === null) return;
+  //
+  //   const rect = {
+  //     x,
+  //     y: y,
+  //     width: BLOCK_WIDTH,
+  //     height: BLOCK_HEIGHT,
+  //   };
+  //
+  //   context.fillStyle = 'white';
+  //   context.fillRect(rect.x, rect.y, rect.width, rect.height);
+  //
+  //   context.strokeStyle = 'black';
+  //   context.lineWidth = 2;
+  //   context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+  //
+  //   context.fillStyle = 'black';
+  //   context.fillText(getPatchNodeName(patch), rect.x + 10, rect.y + 15);
+  //
+  //   context.beginPath();
+  //   context.moveTo(rect.x + 16, y);
+  //   context.lineTo(rect.x + 16, yParent + BLOCK_HEIGHT);
+  //   context.stroke();
+  //
+  //   updateYMargin();
+  //
+  //   if (patch && patch.sibling !== undefined) {
+  //     renderCanvasFiberTreeChild(context, patch.child, rect.x + X_PADDING);
+  //   }
+  //
+  //   if (patch && patch.sibling !== undefined) {
+  //     renderCanvasFiberTreeSibling(context, patch.sibling, rect.x, rect.y);
+  //   }
+  // };
+
+
+  const renderCanvasFiberNode = (context: CanvasRenderingContext2D, patch: any, x: number, yParent: number | null, type: 'sibling' | 'child') =>  {
     if (!settings.renderNullNodes && patch === null) return;
 
     const rect = {
@@ -103,58 +176,30 @@ export const createPatchCanvasRenderer = () => {
     context.fillText(getPatchNodeName(patch), rect.x + 10, rect.y + 15);
 
     context.beginPath();
-    context.moveTo(rect.x, y + (rect.height / 2));
-    context.lineTo(rect.x - 8, y + (rect.height / 2));
-    context.lineTo(rect.x - 8, y + (rect.height / 2) - 20);
+    switch (type) {
+      case 'sibling':
+        context.moveTo(rect.x + 16, y);
+        context.lineTo(rect.x + 16, yParent! + BLOCK_HEIGHT);
+        break;
+        case 'child':
+          context.lineTo(rect.x - 8, y + (rect.height / 2));
+          context.lineTo(rect.x - 8, y + (rect.height / 2) - 20);
+          break;
+    }
     context.stroke();
 
     updateYMargin();
 
     if (patch && patch.child !== undefined) {
-      renderCanvasFiberTreeChild(context, patch.child, rect.x + X_PADDING);
+      renderCanvasFiberNode(context, patch.child, rect.x + X_PADDING, null, 'child');
     }
 
     if (patch && patch.sibling !== undefined) {
-      renderCanvasFiberTreeSibling(context, patch.sibling, rect.x, rect.y);
+      renderCanvasFiberNode(context, patch.sibling, rect.x, rect.y, 'sibling');
     }
-  };
-
-  const renderCanvasFiberTreeSibling = (context: CanvasRenderingContext2D, patch: any, x: number, yParent: number) => {
-    if (!settings.renderNullNodes && patch === null) return;
-
-    const rect = {
-      x,
-      y: y,
-      width: BLOCK_WIDTH,
-      height: BLOCK_HEIGHT,
-    };
-
-    context.fillStyle = 'white';
-    context.fillRect(rect.x, rect.y, rect.width, rect.height);
-
-    context.strokeStyle = 'black';
-    context.lineWidth = 2;
-    context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-
-    context.fillStyle = 'black';
-    context.fillText(getPatchNodeName(patch), rect.x + 10, rect.y + 15);
-
-    context.beginPath();
-    context.moveTo(rect.x + 16, y);
-    context.lineTo(rect.x + 16, yParent + BLOCK_HEIGHT);
-    context.stroke();
-
-    updateYMargin();
-
-    if (patch.child) {
-      renderCanvasFiberTreeChild(context, patch.child, rect.x + X_PADDING);
-    }
-
-    if (patch.sibling) {
-      renderCanvasFiberTreeSibling(context, patch.sibling, rect.x, rect.y);
-    }
-  };
-
+  }
 
   return renderCanvasPatchTree;
 }
+
+

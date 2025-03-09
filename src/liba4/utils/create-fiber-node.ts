@@ -48,6 +48,9 @@ export class FiberNode {
         this.currentStateIndex = 0;
     }
 
+    isComponent() {
+         return typeof this.type === 'function'
+    }
 
     copyStateToOtherFiber(otherFiber: FiberNode) {
        // otherFiber.currentStateIndex = this.currentStateIndex;

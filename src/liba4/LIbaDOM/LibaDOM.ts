@@ -26,9 +26,17 @@ function patch(prevFiberOrParentFiberOrLeftSiblingFiber, newFiber,  patchObj, ty
         case 'CREATE': {
             switch (typeOfPrevFiber) {
                 case 'parent':
-                    renderFiberNode(patchObj.newVNode, prevFiberOrParentFiberOrLeftSiblingFiber.element, 'after')
+                    renderFiberNode(patchObj.newVNode, prevFiberOrParentFiberOrLeftSiblingFiber.element, 'append')
                     break;
                 case 'left-sibling':
+                    // todo: if null than add check for null
+                    if (typeof prevFiberOrParentFiberOrLeftSiblingFiber === 'object' && typeof prevFiberOrParentFiberOrLeftSiblingFiber.isComponent()) {
+                        renderFiberNode(patchObj.newVNode.child, prevFiberOrParentFiberOrLeftSiblingFiber.child.element, 'after')
+                    } else {
+                        renderFiberNode(patchObj.newVNode, prevFiberOrParentFiberOrLeftSiblingFiber.element, 'after')
+                    }
+
+                    break;
             }
 
             break;

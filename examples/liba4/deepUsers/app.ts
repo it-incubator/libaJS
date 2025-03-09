@@ -11,18 +11,21 @@ export function App(_) {
 
   return Liba.create('div', {
     children: [
-      Liba.create(UserCard, {user: {
-        id: 12323232, name: 'FakeUser'
-      }}),
+      // Liba.create(UserCard, {user: {
+      //   id: 12323232, name: 'HardcodedUser1'
+      // }}),
+      // Liba.create("hr"),
       Liba.create("div", {children:  users.map(u => Liba.create(UserCard, {user: u, key: u.id}))}),
+      Liba.create("hr"),
       Liba.create('button', {
         children: ['Add new user'],
         onClick: () => {
           setUsers([...users, {id: Date.now(), name: 'name new'}])
         }
       }),
+      Liba.create("hr"),
       Liba.create(UserCard, {user: {
-        id: 343434343, name: 'FakeUser2'
+        id: 343434343, name: 'HardcodedUser2'
       }}),
     ]
   });
