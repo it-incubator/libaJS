@@ -2,11 +2,6 @@ import { FiberNode } from "./utils/create-fiber-node.ts";
 import { useState } from "./utils/use-state.ts";
 import { reconsilation } from "./utils/reconsilation.ts";
 
-// @ts-ignore
-window.rootFiber = null;
-// @ts-ignore
-window.rootVirtualNode = null;
-
 function copyStateFromExistingFiberToNew(changedFiber: FiberNode | null, targetFiber: FiberNode) {
     let current = changedFiber;
 
@@ -29,6 +24,7 @@ function copyStateFromExistingFiberToNew(changedFiber: FiberNode | null, targetF
 
 export const Liba: any = {
     onFiberTreeChanged: () => {},
+    rootFiber: null,
     currentFiber: null,
     /**
      * файбер в котором изменился стейт и который вызвал каскад рендеров
@@ -38,12 +34,8 @@ export const Liba: any = {
         const fiberNode = new FiberNode(ComponentFunctionOrTagName, props);
         this.currentFiber = fiberNode;
 
-        // @ts-ignore
-        if (window.rootFiber === null) {
-            // @ts-ignore
-            window.rootFiber = fiberNode;
-            // @ts-ignore
-            window.rootVirtualNode = fiberNode.virtualNode;
+        if (Liba.rootFiber === null) {
+            Liba.rootFiber = fiberNode;
         }
 
         // если у текущего компонента есть дети (уже созданные ранее файберы)
@@ -82,6 +74,7 @@ export const Liba: any = {
 
             fiberNode.rendersCount++;
             fiberNode.child = rootChildFiber;
+            if (rootChildFiber) rootChildFiber.parent = fiberNode;
            // fiberNode.virtualNode.children.push(rootChildFiber.virtualNode)
 
             //const virtualNode = createVirtualNode(ComponentFunction, props)
@@ -120,4 +113,4 @@ export const Liba: any = {
     }
 }
 
-
+window.Liba = Liba;
